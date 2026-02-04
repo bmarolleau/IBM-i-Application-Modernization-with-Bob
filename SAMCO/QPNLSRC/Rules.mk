@@ -1,0 +1,3 @@
+SAMHELP.PNLGRP: SAMHELP-Help_Application_Sam.PNLGRPSRC
+
+SAMMNU.MENU: SAMMNU-Main_menu_application_SAMPLE.MENUSRC

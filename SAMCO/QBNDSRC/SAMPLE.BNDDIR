@@ -1,0 +1,11 @@
+     
+/* Have to delete the BNDDIR, or it will always be older than the source */
+/* because the CRTBNDDIR will fail the second time and only the ADDBNDDIRE is executed */     
+!DLTOBJ OBJ(&O/&N) OBJTYPE(*BNDDIR)
+CRTBNDDIR BNDDIR(&O/&N)
+ADDBNDDIRE BNDDIR(&O/&N) +
+   OBJ((*LIBL/XML *SRVPGM) (*LIBL/ORDER *SRVPGM) (*LIBL/TXT *SRVPGM) +
+      (*LIBL/XSS *SRVPGM) (*LIBL/FARTICLE *SRVPGM) +
+      (*LIBL/FCUSTOMER *SRVPGM) (*LIBL/FFAMILLY *SRVPGM) +
+      (*LIBL/FPARAMETER *SRVPGM) (*LIBL/FPROVIDER *SRVPGM) +
+      (*LIBL/FVAT *SRVPGM) (*LIBL/LOG *SRVPGM) (*LIBL/FCOUNTRY *SRVPGM) )

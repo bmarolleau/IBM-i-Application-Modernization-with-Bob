@@ -1,0 +1,18 @@
+{
+  "version": "0.0.1",
+  "description": "SAMPLE PROJECT",
+  "objlib": "&lib1",
+  "curlib": "&lib1",
+  "includePath": [
+    "includes",
+    "QPROTOSRC"
+  ],
+  "preUsrlibl": [
+    "&lib1"
+  ],
+  "postUsrlibl": [],
+  "setIBMiEnvCmd": [],
+  "repository": "https://github.com/bmarolleau/bob-ibmi-demo.git",
+  "compileCommand": "/QOpenSys/pkgs/bin/makei c -f {filename}",
+  "buildCommand": "/QOpenSys/pkgs/bin/makei build"
+}

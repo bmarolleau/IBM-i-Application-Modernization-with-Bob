@@ -1,0 +1,46 @@
+PGM        PARM(&LIB &SRVPGM)
+             DCL        VAR(&LIB) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&SRVPGM) TYPE(*CHAR) LEN(10)
+
+             CHGVAR     VAR(&SRVPGM) VALUE('FARTICLEAPI')
+
+/*  ================================================================  */
+/*  Create Article REST API Service Program                           */
+/*  ================================================================  */
+
+/*  Compile the RPG module  */
+             CRTSQLRPGI OBJ(&LIB/ART400) +
+                       SRCFILE(&LIB/QRPGLESRC) +
+                       SRCMBR(ART400) +
+                       OBJTYPE(*MODULE) +
+                       DBGVIEW(*SOURCE) +
+                       REPLACE(*YES) +
+                       COMMIT(*NONE) +
+                       CLOSQLCSR(*ENDMOD)
+
+             MONMSG     MSGID(CPF0000) EXEC(GOTO CMDLBL(ERROR))
+
+/*  Create the service program  */
+             CRTSRVPGM  SRVPGM(&LIB/&SRVPGM) +
+                       MODULE(&LIB/ART400) +
+                       EXPORT(*SRCFILE) +
+                       SRCFILE(&LIB/QSRVSRC) +
+                       SRCMBR(FARTICLEAPI) +
+                       TEXT('Article REST API Service Program') +
+                       REPLACE(*YES)
+
+             MONMSG     MSGID(CPF0000) EXEC(GOTO CMDLBL(ERROR))
+
+             SNDPGMMSG  MSG('Service program' *BCAT &SRVPGM *BCAT +
+                       'created successfully in library' *BCAT &LIB) +
+                       TOPGMQ(*EXT) +
+                       MSGTYPE(*COMP)
+
+             GOTO       CMDLBL(ENDPGM)
+
+ ERROR:      SNDPGMMSG  MSG('Error creating service program' *BCAT +
+                       &SRVPGM) +
+                       TOPGMQ(*EXT) +
+                       MSGTYPE(*ESCAPE)
+
+ ENDPGM:     ENDPGM

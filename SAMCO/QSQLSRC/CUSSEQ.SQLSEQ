@@ -1,0 +1,11 @@
+--%METADATA                                                      *
+-- %TEXT Sequence by customer number                             *
+--%EMETADATA                                                     *
+
+CREATE OR REPLACE SEQUENCE CUSSEQ
+    START WITH 1551
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO CYCLE;
+
+LABEL ON SEQUENCE CUSSEQ IS 'Next customer Number';
