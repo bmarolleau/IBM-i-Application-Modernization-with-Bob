@@ -4,9 +4,10 @@
 
 Three simple 15-minute labs to learn IBM i modernization using IBM Bob AI assistant. Each lab focuses on one practical use case you can complete quickly.
 
-The application SAMCO is a simple order management system. It has a green screen interface and RPG code that is over 20 years old. It is a good example of a system that could benefit from modernization.
+The application SAMCO is a simple order management system. It has a green screen interface and RPG code that is over 20 years old. It is a good example of a system that could benefit from modernization on the IBM i platform! 
 
-<img src="pics/image.png" alt="samco" style="height:75%;width:75%;"/>
+![alt text](pics/green-screen-to-react.png)
+
 ---
 
 ## 🎯 The Labs
