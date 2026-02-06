@@ -48,6 +48,20 @@ The application SAMCO is a simple order management system. It has a green screen
 
 ---
 
+### Lab 101-4: IBM Bob with IBM i MCP
+**Time**: 15 minutes | **File**: [lab4-ibm-bob-with-ibm-i-mcp.md](lab4-ibm-bob-with-ibm-i-mcp.md)
+
+**What You'll Do:**
+- How to configure Bob for IBM i development with MCP and modes
+- How to use IBM i-specific AI agent modes
+- How to query IBM i systems using natural language
+- How to leverage pre-built IBM i tools
+
+**Use Case**: Customize Bob for IBM i development and leverage IBM i-specific tools
+
+
+
+
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -103,6 +117,12 @@ Explain what the s01lod subroutine does (lines 102-118).
 - Converting to SQL
 - Using JOINs for related data
 - SQL performance benefits
+
+### Lab 4 Skills
+- Getting started with MCP and IBM i
+- Understand IBM i modes
+- Using tools on IBM i
+- Using Bob cli and shell for automating IBM i tasks
 
 ---
 
