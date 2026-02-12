@@ -1,4 +1,4 @@
-# Lab 101-4: IBM Bob, IBM i modes, IBM i MCP - 15 Minute Hands-On Lab
+# Lab 101-4: IBM i modes, IBM i MCP, Bob Shell - 15 Minute Hands-On Lab
 
 **Duration**: 15 minutes  
 **Level**: Intermediate  
@@ -9,7 +9,9 @@
 
 ## Lab Overview
 
-In this hands-on lab, you'll configure IBM Bob to work with IBM i systems using the Model Context Protocol (MCP). You'll set up custom modes, connect to your IBM i system, and execute your first queries using Bob's AI-powered interface.
+In this hands-on lab, you'll configure IBM Bob to work with IBM i systems using the Model Context Protocol (MCP). You'll set up custom modes, connect to your IBM i system, and execute your first queries using Bob's AI-powered interface. 
+
+The *IBM Bob premium package for IBM i* available at GA will bring standard IBM i modes and tools that may (will) differ from the ones used in this tutorial. 
 
 ## What You'll Learn
 
@@ -18,11 +20,44 @@ In this hands-on lab, you'll configure IBM Bob to work with IBM i systems using 
 - How to query IBM i systems using natural language
 - How to leverage pre-built IBM i tools
 
+## Prerequisites (15 minutes)
+
+An IBM i VM is necessary for this lab, with 8076 port open for Mapepire server (use tunneling if using Power Virtual Server/TechZone). You'll find hereunder a few options to get an IBM i virtual machine, and instructions to start the Mapepire server on IBM i that is requried for this lab.
+
+### How to get an IBM i virtul machine (aka LPAR)? 
+
+* For customer activities: 
+    * use customer infrastructure (IBM on prem or in the Cloud)
+    * TechZone: request an [IBM i on IBM Cloud Power Virtual Server](https://techzone.ibm.com/collection/628be988043b54001f89111f) with ssh tunneling (see instructions [here](https://cloud.ibm.com/docs/power-iaas?topic=power-iaas-connect-ibmi#ssh-tunneling) for opening ports if using a public IP. Note that no 'production' customer data is allowed when using our own IBM accounts. Please refer to the official guidelines.
+    * TechZone: request a custom techZone environment for complex or more permanent showcase (prefered but not the default). 
+* For IBMers/business partners activities:
+    * TechZone: request a ["On-Premises IBM Power AIX, IBM i and Linux Base Images"](https://techzone.ibm.com/collection/6261d3584670d7001e3d483a) environment, for example IBM i 7.5 on Power10. IBMers must connect through the Internal intranet and Business partners must connect through a provided VPN.
+    * TechZone: request a [IBM i on IBM Cloud Power Virtual Server](https://techzone.ibm.com/collection/628be988043b54001f89111f) as listed above.
+
+### How to start the mapepire service on IBM i used by MCP ? 
+
+Follow these [instructions](https://ibm-d95bab6e.mintlify.app/setup-mapepire#option-1-rpm-installation-recommended) and don't be scared.
+In a nutshell: 
+1. connect to your IBM i with [Access Client Solution](https://www.ibm.com/support/pages/ibm-i-access-client-solutions) (5250 emulator) and your user profile.
+2. start SSH using the CL command `STRTCPSVR *SSHD` , 
+3. connect with ssh and you user profile, then execute the commands :
+    - ``/QOpenSys/pkgs/bin/yum install mapepire-server``
+    - ``/QOpenSys/pkgs/bin/yum install service-commander``
+    - ``sc start mapepire``
+
+4. If using a TechZone [IBM i on IBM Cloud Power Virtual Server](https://techzone.ibm.com/collection/628be988043b54001f89111f), create the ssh tunnel using the following command on your Linux/MacOS laptop (for Windows, please use the reference [here](https://cloud.ibm.com/docs/power-iaas?topic=power-iaas-connect-ibmi#ssh-tunneling)):
+
+````bash 
+ssh -L 50000:localhost:23 -L 2001:localhost:2001  -L 449:localhost:449 -L 8470:localhost:8470 -L 8471:localhost:8471 -L 8472:localhost:8472 -L 2007:localhost:2007 -L 8473:localhost:8473 -L 8474:localhost:8474 -L 8475:localhost:8475 -L 8476:localhost:8476 -L 2003:localhost:2003 -L 2002:localhost:2002 -L 2006:localhost:2006 -L 2300:localhost:2300 -L 2323:localhost:2323 -L 3001:localhost:3001 -L 3002:localhost:3002 -L 2005:localhost:2005 -L 8076:localhost:8076 -o ExitOnForwardFailure=yes -o ServerAliveInterval=15 -o ServerAliveCountMax=3 <myuser>@<myIPaddress>
+````
+Note that in the command above, port 8076 is the default **mapepire** port. If you have changed it, please update it accordingly. Replace `<myuser>` and `<myIPaddress>` with your IBM i user and IP address.
+
+
 ## Lab Setup (5 minutes)
 
 ### Step 1: Create Project Structure
 
-Create a new directory for this lab:
+On your laptop, create a new directory for this lab:
 
 ```bash
 mkdir bob-ibmi-lab
@@ -123,10 +158,9 @@ Close and reopen IBM Bob to load the new configuration.
 
 **Objective**: Activate the IBM i-specific AI agent.
 
-1. Ask Bob: `"Switch to IBM i Agent mode"`
-2. Bob should confirm the mode switch
-3. Ask Bob: `"What can you help me with?"`
-4. Bob should describe its IBM i capabilities
+1. Ask Bob: `"Switch to IBM i Agent mode"` or switch mode from the Bob IDE.
+2. Ask Bob: `"What can you help me with?"`
+3. Bob should describe its IBM i capabilities
 
 **✅ Success Criteria**: Bob confirms it's in IBM i Agent mode and describes IBM i-specific capabilities.
 
@@ -324,6 +358,8 @@ bob -p "Show me users with limited capabilities" --chat-mode advanced
 **Important Notes:**
 - Use `--chat-mode ask` for queries and `--chat-mode code` for code generation
 
+![alt text](pics/wrksyssts-bob.png)
+
 ### CLI Options Reference
 
 Common Bob CLI options:
@@ -331,14 +367,6 @@ Common Bob CLI options:
 - `--hide-intermediary-output` - Suppress extra output, show only final results
 - `--max-coins <number>` - Set maximum cost limit (exits with code 1 if exceeded)
 - `--help` - Show all available options
-
-### MCP Server Management
-
-```bash
-# List configured MCP servers
-bob mcp list
-
-```
 
 **✅ Success Criteria**: Successfully execute queries from the command line and understand CLI capabilities and limitations.
 
@@ -375,9 +403,9 @@ Switch to IBM i MCP Tool Builder mode:
 
 ### Learn More
 
-- [IBM i MCP Server Documentation](https://ibm-d95bab6e.mintlify.app/mcp)
-- [Mapepire Setup Guide](https://ibm-d95bab6e.mintlify.app/mcp/setup-mapepire)
-- [SQL Tools Guide](https://ibm-d95bab6e.mintlify.app/mcp/sql-tools/overview)
+- [IBM i MCP Server Documentation](https://ibm-d95bab6e.mintlify.app/)
+- [Mapepire Setup Guide](https://mapepire-ibmi.github.io/guides/sysadmin/)
+- [SQL Tools Guide](https://ibm-d95bab6e.mintlify.app/sql-tools/overview)
 - [GitHub Repository](https://github.com/IBM/ibmi-mcp-server)
 
 ## Troubleshooting

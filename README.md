@@ -2,7 +2,7 @@
 
 ## Overview
 
-Three simple 15-minute labs to learn IBM i modernization using IBM Bob AI assistant. Each lab focuses on one practical use case you can complete quickly.
+Four simple 15-minute labs to learn IBM i modernization using IBM Bob AI assistant. Each lab focuses on one practical use case you can complete quickly.
 
 The application SAMCO is a simple order management system. It has a green screen interface and RPG code that is over 20 years old. It is a good example of a system that could benefit from modernization on the IBM i platform! 
 
@@ -49,7 +49,7 @@ The application SAMCO is a simple order management system. It has a green screen
 ---
 
 ### Lab 101-4: IBM Bob with IBM i MCP
-**Time**: 15 minutes | **File**: [lab4-ibm-bob-with-ibm-i-mcp.md](lab4-ibm-bob-with-ibm-i-mcp.md)
+**Time**: 15 minutes | **File**: [lab4-ibmi-mcp-mode.md](lab4-ibmi-mcp-mode.md)
 
 **What You'll Do:**
 - How to configure Bob for IBM i development with MCP and modes
@@ -273,7 +273,8 @@ Each lab follows this simple structure:
 | Lab 1 | 2 min | 10 min | 3 min | 15 min |
 | Lab 2 | 2 min | 10 min | 3 min | 15 min |
 | Lab 3 | 2 min | 10 min | 3 min | 15 min |
-| **All 3** | | | | **45 min** |
+| Lab 4 | 2 min | 10 min | 3 min | 15 min |
+| **All 4** | | | | **60 min** |
 
 ---
 
