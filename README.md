@@ -2,7 +2,7 @@
 
 ## Overview
 
-Four simple 15-minute labs to learn IBM i modernization using IBM Bob AI assistant. Each lab focuses on one practical use case you can complete quickly.
+Five hands-on labs to learn IBM i modernization using IBM Bob AI assistant. Each lab focuses on one practical use case you can complete quickly.
 
 The application SAMCO is a simple order management system. It has a green screen interface and RPG code that is over 20 years old. It is a good example of a system that could benefit from modernization on the IBM i platform! 
 
@@ -58,6 +58,19 @@ The application SAMCO is a simple order management system. It has a green screen
 - How to leverage pre-built IBM i tools
 
 **Use Case**: Customize Bob for IBM i development and leverage IBM i-specific tools
+
+---
+
+### Lab 101-5: Ansible Assistant for PTF Management
+**Time**: 20 minutes | **File**: [lab5-ansible-ptf-management.md](lab5-ansible-ptf-management.md)
+
+**What You'll Do:**
+- Configure Bob with Ansible for IBM i expertise
+- Generate automated PTF currency check playbooks
+- Create compliance reports for system administrators
+- Explore AIOps scenarios for IBM i environments
+
+**Use Case**: Address skills shortage in IBM i DevOps through AI-assisted system automation and PTF management
 
 
 
@@ -124,6 +137,13 @@ Explain what the s01lod subroutine does (lines 102-118).
 - Using tools on IBM i
 - Using Bob cli and shell for automating IBM i tasks
 
+### Lab 5 Skills
+- Configuring Bob custom modes for specialized domains
+- Ansible automation for IBM i systems
+- PTF management and compliance reporting
+- AIOps and DevOps automation strategies
+- Addressing skills shortage with AI assistance
+
 ---
 
 ## 🎓 Learning Path
@@ -138,6 +158,10 @@ Lab 101-1 (RPG Basics)
 Lab 101-3 (SQL Conversion)
     ↓
 Lab 101-2 (Web UI)
+    ↓
+Lab 101-4 (IBM i MCP)
+    ↓
+Lab 101-5 (Ansible Automation)
     ↓
 Done! 🎉
 ```
@@ -164,6 +188,18 @@ Done! 🎉
 - [ ] Converted to SQL SELECT
 - [ ] JOIN added for related data
 - [ ] Benefits understood
+
+### Lab 4
+- [ ] MCP configured for IBM i
+- [ ] Custom mode created
+- [ ] IBM i tools accessed via Bob
+- [ ] Natural language queries executed
+
+### Lab 5
+- [ ] Ansible for IBM i mode configured
+- [ ] PTF currency playbook generated
+- [ ] Compliance report created
+- [ ] Automation scenarios explored
 
 ---
 
@@ -274,7 +310,8 @@ Each lab follows this simple structure:
 | Lab 2 | 2 min | 10 min | 3 min | 15 min |
 | Lab 3 | 2 min | 10 min | 3 min | 15 min |
 | Lab 4 | 2 min | 10 min | 3 min | 15 min |
-| **All 4** | | | | **60 min** |
+| Lab 5 | 3 min | 14 min | 3 min | 20 min |
+| **All 5** | | | | **80 min** |
 
 ---
 
