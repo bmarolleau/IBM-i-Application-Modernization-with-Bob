@@ -2,7 +2,7 @@
 
 ## Overview
 
-Four simple 15-minute labs to learn IBM i modernization using IBM Bob AI assistant. Each lab focuses on one practical use case you can complete quickly.
+Five hands-on labs to learn IBM i modernization using IBM Bob AI assistant. Each lab focuses on one practical use case you can complete quickly.
 
 The application SAMCO is a simple order management system. It has a green screen interface and RPG code that is over 20 years old. It is a good example of a system that could benefit from modernization on the IBM i platform! 
 
@@ -58,6 +58,19 @@ The application SAMCO is a simple order management system. It has a green screen
 - How to leverage pre-built IBM i tools
 
 **Use Case**: Customize Bob for IBM i development and leverage IBM i-specific tools
+
+---
+
+### Lab 101-5: Ansible Assistant for PTF Management
+**Time**: 20 minutes | **File**: [lab5-ansible-ptf-management.md](lab5-ansible-ptf-management.md)
+
+**What You'll Do:**
+- Configure Bob with Ansible for IBM i expertise
+- Generate automated PTF currency check playbooks
+- Create compliance reports for system administrators
+- Explore AIOps scenarios for IBM i environments
+
+**Use Case**: Address skills shortage in IBM i DevOps through AI-assisted system automation and PTF management
 
 
 
@@ -124,6 +137,13 @@ Explain what the s01lod subroutine does (lines 102-118).
 - Using tools on IBM i
 - Using Bob cli and shell for automating IBM i tasks
 
+### Lab 5 Skills
+- Configuring Bob custom modes for specialized domains
+- Ansible automation for IBM i systems
+- PTF management and compliance reporting
+- AIOps and DevOps automation strategies
+- Addressing skills shortage with AI assistance
+
 ---
 
 ## 🎓 Learning Path
@@ -138,6 +158,10 @@ Lab 101-1 (RPG Basics)
 Lab 101-3 (SQL Conversion)
     ↓
 Lab 101-2 (Web UI)
+    ↓
+Lab 101-4 (IBM i MCP)
+    ↓
+Lab 101-5 (Ansible Automation)
     ↓
 Done! 🎉
 ```
@@ -164,6 +188,18 @@ Done! 🎉
 - [ ] Converted to SQL SELECT
 - [ ] JOIN added for related data
 - [ ] Benefits understood
+
+### Lab 4
+- [ ] MCP configured for IBM i
+- [ ] Custom mode created
+- [ ] IBM i tools accessed via Bob
+- [ ] Natural language queries executed
+
+### Lab 5
+- [ ] Ansible for IBM i mode configured
+- [ ] PTF currency playbook generated
+- [ ] Compliance report created
+- [ ] Automation scenarios explored
 
 ---
 
@@ -274,7 +310,8 @@ Each lab follows this simple structure:
 | Lab 2 | 2 min | 10 min | 3 min | 15 min |
 | Lab 3 | 2 min | 10 min | 3 min | 15 min |
 | Lab 4 | 2 min | 10 min | 3 min | 15 min |
-| **All 4** | | | | **60 min** |
+| Lab 5 | 3 min | 14 min | 3 min | 20 min |
+| **All 5** | | | | **80 min** |
 
 ---
 
@@ -289,110 +326,6 @@ After completing these labs, you'll know how to:
 **Keep learning and modernizing!** 🚀
 
 ---
-## 🏗️ Building and Testing SAMCO on IBM i
-
-Want to build and test the actual green screen SAMCO application on your IBM i system? Follow these steps.
-
-Draft documentation: Build with vscode not documented yet. Dependency management is done via Tobi is not 100% documented yet, but the application can compile and will be functional: some programs may not work due to missing dependencies.
-
-### Prerequisites
-
-- IBM i system (7.3 or higher recommended)
-- VS Code with [Code for IBM i](https://marketplace.visualstudio.com/items?itemName=HalcyonTechLtd.code-for-ibmi) extension
-- SSH access to IBM i
-- User profile with appropriate authorities (*ALLOBJ or object creation rights)
-- [Tobi](https://ibm.github.io/ibmi-tobi/#/) build tool installed: `/QOpenSys/pkgs/bin/makei`
-
-### Building the Application
-
-**1. Install Tobi on IBM i** (if not already installed):
-```bash
-# SSH to your IBM i system
-yum install ibmi-tobi
-```
-
-**2. Optional - Configure VS Code Connection:**
-- Install "Code for IBM i" extension in VS Code
-- Press `F1` → "IBM i: New Connection"
-- Enter your IBM i hostname, username, and password
-- Connect to your system
-
-**3. Create Target Library:**
-
-```bash
-# Create target library 
-CRTLIB LIB(SAMCO) TEXT('SAMCO Application')
-```
-or
-```bash
-# In IBM i PASE (shell) 
-system "CRTLIB LIB(SAMCO) TEXT('SAMCO Application')"
-```
-**4. Clone and Open Project:**
-```bash
-# In VS Code terminal / shell on IBM i
-cd /home/YOURUSER
-git clone https://github.com/bmarolleau/IBM-i-Application-Modernization-with-Bob
-cd IBM-i-Application-Modernization-with-Bob/SAMCO
-```
-
-**5. Build the application**
-```bash
-# SSH to IBM i
-cd /home/YOURUSER/IBM-i-Application-Modernization-with-Bob/SAMCO
-export lib1=SAMCO
-system "addlible SAMCO"
-/QOpenSys/pkgs/bin/makei build
-```
-
-The build process compiles all source types: RPG, COBOL, CL, DDS, SQL, etc.
-
-**5. Populate Db2 tables**
-
-Use [SAMCO/POPULATE_SAMCO_TABLES.sql](./SAMCO/POPULATE_SAMCO_TABLES.sql) to populate the tables with sample data. You can run this from the IBM i Navigator or from the IBM i Access Client Solutions.
-
-### Testing the Green Screen Application
-
-**1. Start a 5250 Session:**
-- Use your preferred 5250 emulator (ACS, TN5250, etc.)
-- Sign in to your IBM i system
-
-**2. Set Library List:**
-```
-ADDLIBLE LIB(SAMCO)
-```
-
-**3. Run Key Programs:**
-
-| Program | Description | Command |
-|---------|-------------|---------|
-| `SAMMNU` | SAMCO Main Menu | `GO SAMCO/SAMMNU` |
-| `ART200` | Work with Articles | `CALL SAMCO/ART200` |
-| `ORD200` | Work with Orders | `CALL SAMCO/ORD200` |
-| `CUS200` | Work with Customers | `CALL SAMCO/CUS200` |
-
-**4. Navigate the Interface:**
-- Use function keys (F3=Exit, F5=Refresh, F6=Add, etc.)
-- Test CRUD operations (Create, Read, Update, Delete)
-- Explore the subfile displays
-
-### Quick Reference
-
-```bash
-# Build entire project
-/QOpenSys/pkgs/bin/makei build
-
-# Build specific component
-/QOpenSys/pkgs/bin/makei c -f QRPGLESRC/ART200.PGM.SQLRPGLE
-
-# Clean build artifacts
-/QOpenSys/pkgs/bin/makei clean
-```
-
-**Next Steps:** Once the green screen app is running, try the modernization labs to see how Bob can help transform it into a modern web application!
-
----
-
 
 ## 📚 Additional Resources
 
