@@ -436,7 +436,6 @@ ADDLIBLE LIB(SAMCO)
 - **IBM Bob Documentation**: Ask Bob "How do I use you effectively?"
 - **Carbon Design System**: https://carbondesignsystem.com/
 - **RPG Cafe**: https://www.rpgpgm.com/
-- **IBM i Modernization**: https://www.ibm.com/support/pages/ibm-i-modernization
 
 ---
 
