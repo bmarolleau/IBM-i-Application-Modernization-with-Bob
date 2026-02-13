@@ -327,6 +327,110 @@ After completing these labs, you'll know how to:
 
 ---
 
+## 🏗️ Building and Testing SAMCO on IBM i
+
+Want to build and test the actual green screen SAMCO application on your IBM i system? Follow these steps.
+
+Draft documentation: Build with vscode not documented yet. Dependency management is done via Tobi is not 100% documented yet, but the application can compile and will be functional: some programs may not work due to missing dependencies.
+
+### Prerequisites
+
+- IBM i system (7.3 or higher recommended)
+- VS Code with [Code for IBM i](https://marketplace.visualstudio.com/items?itemName=HalcyonTechLtd.code-for-ibmi) extension
+- SSH access to IBM i
+- User profile with appropriate authorities (*ALLOBJ or object creation rights)
+- [Tobi](https://ibm.github.io/ibmi-tobi/#/) build tool installed: `/QOpenSys/pkgs/bin/makei`
+
+### Building the Application
+
+**1. Install Tobi on IBM i** (if not already installed):
+```bash
+# SSH to your IBM i system
+yum install ibmi-tobi
+```
+
+**2. Optional - Configure VS Code Connection:**
+- Install "Code for IBM i" extension in VS Code
+- Press `F1` → "IBM i: New Connection"
+- Enter your IBM i hostname, username, and password
+- Connect to your system
+
+**3. Create Target Library:**
+
+```bash
+# Create target library 
+CRTLIB LIB(SAMCO) TEXT('SAMCO Application')
+```
+or
+```bash
+# In IBM i PASE (shell) 
+system "CRTLIB LIB(SAMCO) TEXT('SAMCO Application')"
+```
+**4. Clone and Open Project:**
+```bash
+# In VS Code terminal / shell on IBM i
+cd /home/YOURUSER
+git clone https://github.com/bmarolleau/IBM-i-Application-Modernization-with-Bob
+cd IBM-i-Application-Modernization-with-Bob/SAMCO
+```
+
+**5. Build the application**
+```bash
+# SSH to IBM i
+cd /home/YOURUSER/IBM-i-Application-Modernization-with-Bob/SAMCO
+export lib1=SAMCO
+system "addlible SAMCO"
+/QOpenSys/pkgs/bin/makei build
+```
+
+The build process compiles all source types: RPG, COBOL, CL, DDS, SQL, etc.
+
+**5. Populate Db2 tables**
+
+Use [SAMCO/POPULATE_SAMCO_TABLES.sql](./SAMCO/POPULATE_SAMCO_TABLES.sql) to populate the tables with sample data. You can run this from the IBM i Navigator or from the IBM i Access Client Solutions.
+
+### Testing the Green Screen Application
+
+**1. Start a 5250 Session:**
+- Use your preferred 5250 emulator (ACS, TN5250, etc.)
+- Sign in to your IBM i system
+
+**2. Set Library List:**
+```
+ADDLIBLE LIB(SAMCO)
+```
+
+**3. Run Key Programs:**
+
+| Program | Description | Command |
+|---------|-------------|---------|
+| `SAMMNU` | SAMCO Main Menu | `GO SAMCO/SAMMNU` |
+| `ART200` | Work with Articles | `CALL SAMCO/ART200` |
+| `ORD200` | Work with Orders | `CALL SAMCO/ORD200` |
+| `CUS200` | Work with Customers | `CALL SAMCO/CUS200` |
+
+**4. Navigate the Interface:**
+- Use function keys (F3=Exit, F5=Refresh, F6=Add, etc.)
+- Test CRUD operations (Create, Read, Update, Delete)
+- Explore the subfile displays
+
+### Quick Reference
+
+```bash
+# Build entire project
+/QOpenSys/pkgs/bin/makei build
+
+# Build specific component
+/QOpenSys/pkgs/bin/makei c -f QRPGLESRC/ART200.PGM.SQLRPGLE
+
+# Clean build artifacts
+/QOpenSys/pkgs/bin/makei clean
+```
+
+**Next Steps:** Once the green screen app is running, try the modernization labs to see how Bob can help transform it into a modern web application!
+
+---
+
 ## 📚 Additional Resources
 
 - **IBM Bob Documentation**: Ask Bob "How do I use you effectively?"
