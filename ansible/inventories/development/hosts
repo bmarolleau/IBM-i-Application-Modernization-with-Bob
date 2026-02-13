@@ -1,0 +1,46 @@
+[ibmi]
+# IBM i Development System
+# Replace with your actual IBM i hostname or IP address
+10.3.61.2
+
+[ibmi:vars]
+# Connection settings for IBM i
+ansible_ssh_userr=benoit
+# Or use SSH key authentication (recommended):
+ansible_ssh_private_key_file=~/.ssh/id_rsa_ibmi
+ansible_ssh_common_args='-o StrictHostKeyChecking=no'
+# Python interpreter on IBM i (usually in /QOpenSys/pkgs/bin)
+ansible_python_interpreter=/QOpenSys/pkgs/bin/python3.9
+
+# Become settings (if needed for elevated privileges)
+# ansible_become=yes
+# ansible_become_user=QSECOFR
+# ansible_become_method=su
+
+# IBM i specific settings
+# Target CCSID for operations
+# ibmi_target_ccsid=37
+
+[production]
+# Production IBM i systems
+# prod-ibmi.example.com
+
+[production:vars]
+ansible_connection=ibmi
+ansible_user=your_ibmi_user
+# Use vault for production credentials
+# ansible_ssh_pass="{{ vault_ibmi_password }}"
+ansible_python_interpreter=/QOpenSys/pkgs/bin/python3
+
+[test]
+# Test IBM i systems
+# test-ibmi.example.com
+
+[test:vars]
+ansible_connection=ibmi
+ansible_user=your_ibmi_user
+ansible_python_interpreter=/QOpenSys/pkgs/bin/python3
+
+[all:vars]
+# Global variables for all IBM i systems
+ansible_ssh_common_args='-o StrictHostKeyChecking=no'

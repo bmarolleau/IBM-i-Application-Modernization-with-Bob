@@ -1,0 +1,114 @@
+================================================================================
+IBM i PTF CURRENCY REPORT
+================================================================================
+Generated: {{ ansible_date_time.iso8601 }}
+System: {{ inventory_hostname }}
+Release: {{ ptf_currency_result.row[0].PTF_GROUP_RELEASE if ptf_currency_result.row | length > 0 else 'N/A' }}
+
+================================================================================
+SUMMARY
+================================================================================
+Total PTF Groups:           {{ total_groups }}
+Current Groups:             {{ current_groups | length }} ({{ ((current_groups | length / total_groups | float) * 100) | round(1) }}%)
+Groups with Updates:        {{ outdated_groups | length }} ({{ ((outdated_groups | length / total_groups | float) * 100) | round(1) }}%)
+Critical Updates ({{ critical_threshold }}+ levels): {{ critical_groups | length }}
+
+{% if critical_groups | length > 0 %}
+================================================================================
+⚠️  CRITICAL PTF GROUPS ({{ critical_threshold }}+ LEVELS BEHIND)
+================================================================================
+{% for group in critical_groups %}
+PTF Group:      {{ group.PTF_GROUP_ID }}
+Title:          {{ group.PTF_GROUP_TITLE }}
+Installed:      {{ group.PTF_GROUP_LEVEL_INSTALLED }}
+Available:      {{ group.PTF_GROUP_LEVEL_AVAILABLE }}
+Levels Behind:  {{ group.LEVELS_BEHIND }}
+Last Updated:   {{ group.LAST_UPDATED_BY_IBM }}
+Status:         {{ group.PTF_GROUP_STATUS_ON_SYSTEM }}
+--------------------------------------------------------------------------------
+{% endfor %}
+{% endif %}
+
+{% if outdated_groups | length > 0 %}
+================================================================================
+📦 PTF GROUPS WITH UPDATES AVAILABLE
+================================================================================
+{% for group in outdated_groups %}
+{% if group.LEVELS_BEHIND < critical_threshold %}
+PTF Group:      {{ group.PTF_GROUP_ID }}
+Title:          {{ group.PTF_GROUP_TITLE }}
+Installed:      {{ group.PTF_GROUP_LEVEL_INSTALLED }}
+Available:      {{ group.PTF_GROUP_LEVEL_AVAILABLE }}
+Levels Behind:  {{ group.LEVELS_BEHIND }}
+Last Updated:   {{ group.LAST_UPDATED_BY_IBM }}
+Status:         {{ group.PTF_GROUP_STATUS_ON_SYSTEM }}
+--------------------------------------------------------------------------------
+{% endif %}
+{% endfor %}
+{% endif %}
+
+{% if current_groups | length > 0 %}
+================================================================================
+✅ CURRENT PTF GROUPS
+================================================================================
+{% for group in current_groups %}
+PTF Group:      {{ group.PTF_GROUP_ID }}
+Title:          {{ group.PTF_GROUP_TITLE }}
+Level:          {{ group.PTF_GROUP_LEVEL_INSTALLED }}
+Last Updated:   {{ group.LAST_UPDATED_BY_IBM }}
+Status:         {{ group.PTF_GROUP_STATUS_ON_SYSTEM }}
+--------------------------------------------------------------------------------
+{% endfor %}
+{% endif %}
+
+================================================================================
+RECOMMENDATIONS
+================================================================================
+{% if critical_groups | length > 0 %}
+⚠️  PRIORITY ACTION REQUIRED:
+   - {{ critical_groups | length }} PTF group(s) are {{ critical_threshold }} or more levels behind
+   - These should be applied as soon as possible during the next maintenance window
+   - Critical groups: {% for g in critical_groups %}{{ g.PTF_GROUP_ID }}{% if not loop.last %}, {% endif %}{% endfor %}
+
+{% endif %}
+{% if outdated_groups | length > 0 and (outdated_groups | length > critical_groups | length) %}
+📋 STANDARD UPDATES:
+   - {{ outdated_groups | length - critical_groups | length }} additional PTF group(s) have updates available
+   - Consider applying during your next scheduled maintenance window
+   - Review and plan PTF application based on your change management process
+
+{% endif %}
+{% if current_groups | length == total_groups | int %}
+✅ EXCELLENT STATUS:
+   - All PTF groups are current!
+   - Continue monitoring for new updates regularly
+
+{% endif %}
+================================================================================
+NEXT STEPS TO APPLY PTF UPDATES
+================================================================================
+1. Review this report and prioritize PTF groups to update
+2. Schedule maintenance window for PTF application
+3. Download PTFs:
+   - Use SNDPTFORD command to order PTFs from IBM
+   - Or download manually from IBM Fix Central
+4. Load PTFs:
+   - Use LODPTF command to load downloaded PTFs
+5. Apply PTFs:
+   - Use APYPTF command to apply loaded PTFs
+   - Or use IBM i Access Client Solutions (ACS) PTF management
+6. Verify application:
+   - Check WRKPTFGRP for updated levels
+   - Review job logs for any errors
+7. Plan for IPL if required by applied PTFs
+
+================================================================================
+ADDITIONAL RESOURCES
+================================================================================
+- IBM Fix Central: https://www.ibm.com/support/fixcentral/
+- PTF Group Information: https://www.ibm.com/support/pages/node/667567
+- IBM i PTF Guide: https://www.ibm.com/support/pages/ibm-i-ptf-guide
+
+================================================================================
+END OF REPORT
+================================================================================

@@ -1,0 +1,156 @@
+---
+# Playbook: Check PTF Currency on IBM i
+# Description: Queries PTF group currency status and generates a report
+# Usage: ansible-playbook -i inventories/development/hosts playbooks/check_ptf_currency.yml
+
+- name: Check PTF Currency on IBM i
+  hosts: ibmi
+  gather_facts: true
+  
+  vars:
+    # Filter options: '*ALL', 'UPDATE AVAILABLE', 'CURRENT'
+    currency_filter: '*ALL'
+    # Minimum levels behind to highlight (default: 1)
+    critical_threshold: 3
+    # Output report file location
+    report_file: "/tmp/ptf_currency_report_{{ ansible_date_time.iso8601_basic_short }}.txt"
+
+  tasks:
+    - name: Display playbook information
+      ansible.builtin.debug:
+        msg:
+          - "=========================================="
+          - "PTF Currency Check Playbook"
+          - "=========================================="
+          - "Target System: {{ inventory_hostname }}"
+          - "Currency Filter: {{ currency_filter }}"
+          - "Critical Threshold: {{ critical_threshold }} levels"
+          - "=========================================="
+
+    - name: Query PTF group currency status
+      ibm.power_ibmi.ibmi_sql_query:
+        sql: |
+          WITH iLevel(iVersion, iRelease) AS (
+            SELECT OS_VERSION, OS_RELEASE 
+            FROM SYSIBMADM.ENV_SYS_INFO
+          )
+          SELECT P.PTF_GROUP_CURRENCY,
+                 P.PTF_GROUP_ID,
+                 P.PTF_GROUP_TITLE,
+                 P.PTF_GROUP_LEVEL_INSTALLED,
+                 P.PTF_GROUP_LEVEL_AVAILABLE,
+                 P.LAST_UPDATED_BY_IBM,
+                 P.PTF_GROUP_RELEASE,
+                 P.PTF_GROUP_STATUS_ON_SYSTEM,
+                 (P.PTF_GROUP_LEVEL_AVAILABLE - P.PTF_GROUP_LEVEL_INSTALLED) AS LEVELS_BEHIND
+          FROM iLevel, SYSTOOLS.GROUP_PTF_CURRENCY P
+          WHERE PTF_GROUP_RELEASE = 'R' CONCAT iVersion CONCAT iRelease CONCAT '0'
+            AND ('{{ currency_filter }}' = '*ALL' 
+                 OR P.PTF_GROUP_CURRENCY LIKE '%' CONCAT '{{ currency_filter }}' CONCAT '%')
+          ORDER BY (P.PTF_GROUP_LEVEL_AVAILABLE - P.PTF_GROUP_LEVEL_INSTALLED) DESC
+          FETCH FIRST 100 ROWS ONLY
+      register: ptf_currency_result
+      tags:
+        - query
+        - ptf
+
+    - name: Set facts for analysis
+      ansible.builtin.set_fact:
+        total_groups: "{{ ptf_currency_result.row | length }}"
+        outdated_groups: "{{ ptf_currency_result.row | selectattr('LEVELS_BEHIND', 'gt', 0) | list }}"
+        current_groups: "{{ ptf_currency_result.row | selectattr('LEVELS_BEHIND', 'eq', 0) | list }}"
+        critical_groups: "{{ ptf_currency_result.row | selectattr('LEVELS_BEHIND', 'ge', critical_threshold) | list }}"
+      tags:
+        - analysis
+
+    - name: Display PTF currency summary
+      ansible.builtin.debug:
+        msg:
+          - ""
+          - "=========================================="
+          - "PTF CURRENCY SUMMARY"
+          - "=========================================="
+          - "Total PTF Groups: {{ total_groups }}"
+          - "Current Groups: {{ current_groups | length }} ({{ ((current_groups | length / total_groups | float) * 100) | round(1) }}%)"
+          - "Groups with Updates: {{ outdated_groups | length }} ({{ ((outdated_groups | length / total_groups | float) * 100) | round(1) }}%)"
+          - "Critical Updates ({{ critical_threshold }}+ levels): {{ critical_groups | length }}"
+          - "=========================================="
+      tags:
+        - summary
+
+    - name: Display critical PTF groups (if any)
+      ansible.builtin.debug:
+        msg:
+          - ""
+          - "⚠️  CRITICAL: {{ item.PTF_GROUP_ID }} - {{ item.PTF_GROUP_TITLE }}"
+          - "   Installed: {{ item.PTF_GROUP_LEVEL_INSTALLED }} | Available: {{ item.PTF_GROUP_LEVEL_AVAILABLE }} | Behind: {{ item.LEVELS_BEHIND }} levels"
+          - "   Last Updated by IBM: {{ item.LAST_UPDATED_BY_IBM }}"
+      loop: "{{ critical_groups }}"
+      when: critical_groups | length > 0
+      tags:
+        - critical
+
+    - name: Display outdated PTF groups
+      ansible.builtin.debug:
+        msg:
+          - ""
+          - "📦 UPDATE AVAILABLE: {{ item.PTF_GROUP_ID }} - {{ item.PTF_GROUP_TITLE }}"
+          - "   Installed: {{ item.PTF_GROUP_LEVEL_INSTALLED }} | Available: {{ item.PTF_GROUP_LEVEL_AVAILABLE }} | Behind: {{ item.LEVELS_BEHIND }} level(s)"
+          - "   Last Updated by IBM: {{ item.LAST_UPDATED_BY_IBM }}"
+      loop: "{{ outdated_groups }}"
+      when: 
+        - outdated_groups | length > 0
+        - item.LEVELS_BEHIND < critical_threshold
+      tags:
+        - outdated
+
+    - name: Display current PTF groups
+      ansible.builtin.debug:
+        msg:
+          - ""
+          - "✅ CURRENT: {{ item.PTF_GROUP_ID }} - {{ item.PTF_GROUP_TITLE }}"
+          - "   Level: {{ item.PTF_GROUP_LEVEL_INSTALLED }} | Last Updated: {{ item.LAST_UPDATED_BY_IBM }}"
+      loop: "{{ current_groups }}"
+      when: current_groups | length > 0
+      tags:
+        - current
+
+    - name: Generate detailed PTF currency report
+      ansible.builtin.template:
+        src: ../templates/ptf_currency_report.j2
+        dest: "{{ report_file }}"
+      delegate_to: localhost
+      tags:
+        - report
+
+    - name: Display report location
+      ansible.builtin.debug:
+        msg:
+          - ""
+          - "=========================================="
+          - "Report generated: {{ report_file }}"
+          - "=========================================="
+      tags:
+        - report
+
+    - name: Provide recommendations
+      ansible.builtin.debug:
+        msg:
+          - ""
+          - "=========================================="
+          - "RECOMMENDATIONS"
+          - "=========================================="
+          - "{% if critical_groups | length > 0 %}⚠️  PRIORITY: Apply critical PTF groups ({{ critical_groups | length }} group(s) {{ critical_threshold }}+ levels behind){% endif %}"
+          - "{% if outdated_groups | length > 0 %}📋 STANDARD: Consider applying {{ outdated_groups | length }} PTF group(s) during next maintenance window{% endif %}"
+          - "{% if current_groups | length == total_groups | int %}✅ EXCELLENT: All PTF groups are current!{% endif %}"
+          - ""
+          - "To apply PTF updates:"
+          - "  1. SNDPTFORD - Send PTF Order to download"
+          - "  2. LODPTF - Load PTFs"
+          - "  3. APYPTF - Apply PTFs"
+          - "  4. Or use IBM i Access Client Solutions (ACS)"
+          - "=========================================="
+      tags:
+        - recommendations
+
+# Made with Bob
