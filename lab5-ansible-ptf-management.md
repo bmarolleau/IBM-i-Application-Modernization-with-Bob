@@ -209,9 +209,10 @@ After Bob generates the automation, review the PTF currency check playbook struc
 **Create inventory file** at `~/ansible/inventories/development/hosts`:
 
 Please adapt the hostnames according to your environment.
-`ànsible_host` should be the IP address or hostname of your IBM i system.
-`ànsible_user` should be the user with sufficient privileges to run the PTF checks.
-`ànsible_python_interpreter` should point to the Python 3 interpreter on your IBM i system.
+- `ansible_host` should be the IP address or hostname of your IBM i system.
+- `ansible_user` should be the user with sufficient privileges to run the PTF checks.
+- `ansible_python_interpreter` should point to the Python 3 interpreter on your IBM i system.
+
 Please also ensure that public ssh key authentication is set up for the user and that the prerequisites are installed on the IBM i system (https://github.com/IBM/ansible-for-i: 5733SC1 Base and Option 1, 5770DG1, python3, python3-itoolkit, python3-ibm_db)
 
 ```ini
@@ -374,4 +375,4 @@ You've successfully created an Ansible-based PTF management assistant with Bob A
 **Resources:**
 - IBM i Ansible Collection: https://galaxy.ansible.com/ibm/power_ibmi
 - Power HMC Collection: https://galaxy.ansible.com/ibm/power_hmc
-- IBM i PTF Management: https://www.ibm.com/support/pages/fix-management
+- IBM i PTF Management: https://www.ibm.com/support/pages/best-practices-ptf-or-fixes-installation
