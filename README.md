@@ -2,7 +2,7 @@
 
 ## Overview
 
-Five hands-on labs to learn IBM i modernization using IBM Bob AI assistant. Each lab focuses on one practical use case you can complete quickly.
+Six hands-on labs to learn IBM i modernization using IBM Bob AI assistant. Each lab focuses on one practical use case you can complete quickly.
 
 The application SAMCO is a simple order management system. It has a green screen interface and RPG code that is over 20 years old. It is a good example of a system that could benefit from modernization on the IBM i platform! 
 
@@ -11,6 +11,19 @@ The application SAMCO is a simple order management system. It has a green screen
 ---
 
 ## 🎯 The Labs
+
+### Lab 101-0: Discover the SAMCO Application
+**Time**: 15 minutes | **File**: [lab0-rpg-project-introduction.md](lab0-rpg-project-introduction.md)
+
+**What You'll Do:**
+- Ask Bob to explain the SAMCO application purpose and structure
+- Understand business rules (VAT, orders, soft deletes)
+- Learn the panel-step pattern used in interactive programs
+- Trace the complete order creation flow
+
+**Use Case**: Use Bob as a discovery tool to understand legacy code before modernizing
+
+---
 
 ### Lab 101-1: RPG Fixed-to-Free Conversion
 **Time**: 15 minutes | **File**: [lab1-rpg-documentation-fixed-to-free.md](lab1-rpg-documentation-fixed-to-free.md)
@@ -153,6 +166,8 @@ Explain what the s01lod subroutine does (lines 102-118).
 ```
 Start Here
     ↓
+Lab 101-0 (Discover SAMCO)
+    ↓
 Lab 101-1 (RPG Basics)
     ↓
 Lab 101-3 (SQL Conversion)
@@ -171,6 +186,13 @@ Done! 🎉
 ---
 
 ## ✅ Success Criteria
+
+### Lab 0
+- [ ] Bob explained SAMCO's purpose and functional areas
+- [ ] Business rules understood (VAT, soft deletes, order lifecycle)
+- [ ] Panel-step pattern explained
+- [ ] Order creation flow traced
+- [ ] RLA vs SQL differences understood
 
 ### Lab 1
 - [ ] Bob explained the Fixed format code
@@ -306,12 +328,13 @@ Each lab follows this simple structure:
 
 | Lab | Setup | Steps | Review | Total |
 |-----|-------|-------|--------|-------|
+| Lab 0 | 1 min | 11 min | 3 min | 15 min |
 | Lab 1 | 2 min | 10 min | 3 min | 15 min |
 | Lab 2 | 2 min | 10 min | 3 min | 15 min |
 | Lab 3 | 2 min | 10 min | 3 min | 15 min |
 | Lab 4 | 2 min | 10 min | 3 min | 15 min |
 | Lab 5 | 3 min | 14 min | 3 min | 20 min |
-| **All 5** | | | | **80 min** |
+| **All 6** | | | | **95 min** |
 
 ---
 
