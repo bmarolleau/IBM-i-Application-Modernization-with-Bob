@@ -6,13 +6,27 @@ Six hands-on labs to learn IBM i modernization using IBM Bob AI assistant. Each 
 
 The application SAMCO is a simple order management system. It has a green screen interface and RPG code that is over 20 years old. It is a good example of a system that could benefit from modernization on the IBM i platform! 
 
+**NEW** : (beta, internal use only) Labs with the **Premium Package for IBM i** add-on to complement these IBM Bob 'Core' labs are now available. 
+See the [Premium Package page ](./lab100-premium-package-introduction.md) for details.
+
+---
+
 ![alt text](pics/green-screen-to-react.png)
 
 ---
 
 ## 🎯 The Labs
+| Lab_Number | Description | Time | Lab Details      |
+|------------|-------------|------|------------------|
+| **Lab 0** | Discover the Application - Use Bob to understand legacy code structure, business rules, and program flow | 15 min | [Lab 0](#lab-0-discover-the-samco-application) |
+| **Lab 1** | RPG modernization & refactoring - Convert legacy RPG code to modern RPG | 15 min | [Lab 1](#lab-1-rpg-fixed-to-free-conversion) |
+| **Lab 2** | Build a Simple Article List - Create a modern web UI using React and Carbon Design System | 15 min | [Lab 2](#lab-2-build-a-simple-article-list) |
+| **Lab 3** | Convert RLA to SQL - Transform record-level access operations to modern SQL with JOINs | 15 min | [Lab 3](#lab-3-convert-rla-to-sql) |
+| **Lab 4** | IBM Bob with IBM i MCP - Configure Bob for IBM i development with MCP tools and custom modes | 15 min | [Lab 4](#lab-4-ibm-bob-with-ibm-i-mcp) |
+| **Lab 5** | PTF Management Assistant - Automate IBM i system management with Bob & ansible | 20 min | [Lab 5](#lab-5-ansible-assistant-for-ptf-management) |
 
-### Lab 101-0: Discover the SAMCO Application
+
+### Lab 0: Discover the SAMCO Application
 **Time**: 15 minutes | **File**: [lab0-rpg-project-introduction.md](lab0-rpg-project-introduction.md)
 
 **What You'll Do:**
@@ -25,7 +39,7 @@ The application SAMCO is a simple order management system. It has a green screen
 
 ---
 
-### Lab 101-1: RPG Fixed-to-Free Conversion
+### Lab 1: RPG Fixed-to-Free Conversion
 **Time**: 15 minutes | **File**: [lab1-rpg-documentation-fixed-to-free.md](lab1-rpg-documentation-fixed-to-free.md)
 
 **What You'll Do:**
@@ -37,7 +51,7 @@ The application SAMCO is a simple order management system. It has a green screen
 
 ---
 
-### Lab 101-2: Build a Simple Article List
+### Lab 2: Build a Simple Article List
 **Time**: 15 minutes | **File**: [lab2-ui-modernization-react-carbon.md](lab2-ui-modernization-react-carbon.md)
 
 **What You'll Do:**
@@ -49,7 +63,7 @@ The application SAMCO is a simple order management system. It has a green screen
 
 ---
 
-### Lab 101-3: Convert RLA to SQL
+### Lab 3: Convert RLA to SQL
 **Time**: 15 minutes | **File**: [lab3-dds-to-sql-rla-refactoring.md](lab3-dds-to-sql-rla-refactoring.md)
 
 **What You'll Do:**
@@ -61,7 +75,7 @@ The application SAMCO is a simple order management system. It has a green screen
 
 ---
 
-### Lab 101-4: IBM Bob with IBM i MCP
+### Lab 4: IBM Bob with IBM i MCP
 **Time**: 15 minutes | **File**: [lab4-ibmi-mcp-mode.md](lab4-ibmi-mcp-mode.md)
 
 **What You'll Do:**
@@ -74,7 +88,7 @@ The application SAMCO is a simple order management system. It has a green screen
 
 ---
 
-### Lab 101-5: Ansible Assistant for PTF Management
+### Lab 5: Ansible Assistant for PTF Management
 **Time**: 20 minutes | **File**: [lab5-ansible-ptf-management.md](lab5-ansible-ptf-management.md)
 
 **What You'll Do:**
@@ -85,24 +99,6 @@ The application SAMCO is a simple order management system. It has a green screen
 
 **Use Case**: Address skills shortage in IBM i DevOps through AI-assisted system automation and PTF management
 
-
-
-
-## 🚀 Quick Start
-
-### Prerequisites
-- VS Code with this project open
-- IBM Bob AI assistant available
-- For Lab 2: Node.js installed
-
-### Start Any Lab
-1. Open the lab markdown file
-2. Follow the steps in order
-3. Copy the prompts and ask Bob
-4. Review Bob's responses
-5. Complete the success criteria
-
----
 
 ## 💡 How to Use These Labs
 
@@ -148,7 +144,7 @@ Explain what the s01lod subroutine does (lines 102-118).
 - Getting started with MCP and IBM i
 - Understand IBM i modes
 - Using tools on IBM i
-- Using Bob cli and shell for automating IBM i tasks
+- Using Bob Shell and shell for automating IBM i tasks
 
 ### Lab 5 Skills
 - Configuring Bob custom modes for specialized domains
@@ -166,62 +162,22 @@ Explain what the s01lod subroutine does (lines 102-118).
 ```
 Start Here
     ↓
-Lab 101-0 (Discover SAMCO)
+Lab 0 (Discover SAMCO)
     ↓
-Lab 101-1 (RPG Basics)
+Lab 1 (RPG Basics)
     ↓
-Lab 101-3 (SQL Conversion)
+Lab 3 (SQL Conversion)
     ↓
-Lab 101-2 (Web UI)
+Lab 2 (Web UI)
     ↓
-Lab 101-4 (IBM i MCP)
+Lab 4 (IBM i MCP)
     ↓
-Lab 101-5 (Ansible Automation)
+Lab 5 (Ansible Automation)
     ↓
 Done! 🎉
 ```
 
 **Or start with Lab 2** if you want to see the web UI first!
-
----
-
-## ✅ Success Criteria
-
-### Lab 0
-- [ ] Bob explained SAMCO's purpose and functional areas
-- [ ] Business rules understood (VAT, soft deletes, order lifecycle)
-- [ ] Panel-step pattern explained
-- [ ] Order creation flow traced
-- [ ] RLA vs SQL differences understood
-
-### Lab 1
-- [ ] Bob explained the Fixed format code
-- [ ] Code converted to Free format
-- [ ] Magic number replaced with constant
-
-### Lab 2
-- [ ] Green screen layout visualized
-- [ ] Sample data created
-- [ ] Article list displays in browser
-- [ ] Search works
-
-### Lab 3
-- [ ] CHAIN operation explained
-- [ ] Converted to SQL SELECT
-- [ ] JOIN added for related data
-- [ ] Benefits understood
-
-### Lab 4
-- [ ] MCP configured for IBM i
-- [ ] Custom mode created
-- [ ] IBM i tools accessed via Bob
-- [ ] Natural language queries executed
-
-### Lab 5
-- [ ] Ansible for IBM i mode configured
-- [ ] PTF currency playbook generated
-- [ ] Compliance report created
-- [ ] Automation scenarios explored
 
 ---
 
@@ -242,19 +198,6 @@ npm install
 ### Lab 3 - SQL syntax errors?
 - Check the ART400.SQLRPGLE file for working examples
 - Ask Bob to explain the error
-
----
-
-## 📖 Reference Files
-
-These files are used in the labs:
-
-| File | Used In | Purpose |
-|------|---------|---------|
-| `SAMCO/QRPGLESRC/ART200-Work_with_article.PGM.SQLRPGLE` | Lab 1, 3 | Legacy RPG program |
-| `SAMCO/QDDSSRC/ART200D-Work_with_Article.DSPF` | Lab 2 | Green screen definition |
-| `SAMCO/QRPGLESRC/ART400.SQLRPGLE` | Lab 3 | Modern SQL example |
-| `article-management-web/` | Lab 2 | React application |
 
 ---
 
@@ -320,7 +263,6 @@ Each lab follows this simple structure:
 2. **Read Bob's Responses**: Don't just copy code, understand it
 3. **One Step at a Time**: Complete each step before moving on
 4. **Ask Questions**: Bob is there to help - use it!
-5. **Have Fun**: Modernization doesn't have to be scary!
 
 ---
 
@@ -359,9 +301,9 @@ Draft documentation: Build with vscode not documented yet. Dependency management
 ### Prerequisites
 
 - IBM i system (7.3 or higher recommended)
-- VS Code with [Code for IBM i](https://marketplace.visualstudio.com/items?itemName=HalcyonTechLtd.code-for-ibmi) extension
+- IBM Bob with [Code for IBM i](https://marketplace.visualstudio.com/items?itemName=HalcyonTechLtd.code-for-ibmi) extension + other related extensions.
 - SSH access to IBM i
-- User profile with appropriate authorities (*ALLOBJ or object creation rights)
+- User profile with appropriate authorities 
 - [Tobi](https://ibm.github.io/ibmi-tobi/#/) build tool installed: `/QOpenSys/pkgs/bin/makei`
 
 ### Building the Application
@@ -373,7 +315,7 @@ yum install ibmi-tobi
 ```
 
 **2. Optional - Configure VS Code Connection:**
-- Install "Code for IBM i" extension in VS Code
+- Install "Code for IBM i" extension in IBM Bob / vscode
 - Press `F1` → "IBM i: New Connection"
 - Enter your IBM i hostname, username, and password
 - Connect to your system
@@ -391,7 +333,7 @@ system "CRTLIB LIB(SAMCO) TEXT('SAMCO Application')"
 ```
 **4. Clone and Open Project:**
 ```bash
-# In VS Code terminal / shell on IBM i
+# In Bob terminal / shell on IBM i
 cd /home/YOURUSER
 git clone https://github.com/bmarolleau/IBM-i-Application-Modernization-with-Bob
 cd IBM-i-Application-Modernization-with-Bob/SAMCO
