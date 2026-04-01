@@ -6,12 +6,13 @@
 - IBM Bob installed and running
 - Access to an IBM i system with Mapepire server running (port 8076)
 - Basic familiarity with command line
+**Version:** version 2 updated on April 1, 2026
 
 ## Lab Overview
 
 In this hands-on lab, you'll configure IBM Bob to work with IBM i systems using the Model Context Protocol (MCP). You'll set up custom modes, connect to your IBM i system, and execute your first queries using Bob's AI-powered interface. 
 
-The *IBM Bob premium package for IBM i* available at GA will bring standard IBM i modes and tools that may (will) differ from the ones used in this tutorial. 
+The *IBM Bob premium package for IBM i* available at GA will bring standard IBM i modes and tools that will differ from the ones used in this tutorial. 
 
 ## What You'll Learn
 
@@ -55,41 +56,11 @@ Note that in the command above, port 8076 is the default **mapepire** port. If y
 
 ## Lab Setup (5 minutes)
 
-### Step 1: Create Project Structure
+### Step 1: Open project
 
-On your laptop, create a new directory for this lab:
+Create a new directory on your laptop, Open up this new folder in a new Bob window, this is the participant working directory.
 
-```bash
-mkdir bob-ibmi-lab
-cd bob-ibmi-lab
-mkdir -p .bob/tools
-```
-
-### Step 2: Download Configuration Files
-
-Clone or download the IBM i MCP Server repository:
-
-```bash
-git clone https://github.com/IBM/ibmi-mcp-server.git
-```
-
-Copy the required configuration files:
-
-```bash
-# Copy custom modes
-cp ibmi-mcp-server/.bobmodes .
-
-# Copy MCP configuration
-cp ibmi-mcp-server/.bob/mcp.json.example .bob/mcp.json
-
-# Copy example tools
-cp -r ibmi-mcp-server/tools .bob/
-
-# Remove temporary files 
-rm -rf ibmi-mcp-server
-```
-
-### Step 3: Configure IBM i Connection
+### Step 2: Configure IBM i Connection
 
 Create a `.env` file in your project root with your IBM i credentials:
 
@@ -101,15 +72,17 @@ DB2i_PASS=yourpassword
 DB2i_PORT=8076
 ```
 
+Replace `ìbmi-hostanme.com`, `YOURUSER`, `yourpassword` by the corresponding values.
+
 **Important**: Add `.env` to `.gitignore`:
 
 ```bash
 echo ".env" >> .gitignore
 ```
 
-### Step 4: Update MCP Configuration
+### Step 3: Update MCP Configuration
 
-Edit `.bob/mcp.json` to use the `.env` file (remove credential references):
+Edit `.bob/mcp.json` to use the `.env` file (remove credential references in any):
 
 ```json
 {
@@ -138,33 +111,25 @@ Edit `.bob/mcp.json` to use the `.env` file (remove credential references):
 }
 ```
 
-### Step 5: Restart Bob
+### Step 4: Check configuration
 
-Close and reopen IBM Bob to load the new configuration.
+1. Restart Bob (or reload the window using `Function` + `F1` keys then `Reload Window`  )
+2. Open up Bob settings
+2. Check that `IBM i Agent` and `IBM i MCP Tool Builder` appear in your modes list
+3. Check that `ibmi-mcp-server` and `ibmi-mcp-docs` appear connected in your MCP list
 
-## Exercise 1: Verify Setup (2 minutes)
+## Exercise 1: Switch to IBM i Agent Mode (2 minutes)
 
-**Objective**: Confirm Bob is properly configured for IBM i.
+**Objective**: Select the IBM i-specific AI agent.
 
-1. Open Bob in your `bob-ibmi-lab` directory
-2. Ask Bob: `"What custom modes are available?"`
-3. Expected response: Bob should list "IBM i Agent" and "IBM i MCP Tool Builder" modes
-4. Ask Bob: `"What MCP servers are connected?"`
-5. Expected response: Bob should show `ibmi-mcp-server` and `ibmi-mcp-docs` as connected
+1. Switch to IBM i Agent mode
+![](./pics/select-ibmi-agent.png)
 
-**✅ Success Criteria**: Both custom modes are listed and both MCP servers show as connected.
+2. Ask Bob: `What can you help me with?`
+   - Bob should describe its IBM i capabilities
+   - You may need to reload the window to refresh the credentials for the MCP server: `CMD` `SHFT` `P`, search `Developer: Reload Window`
 
-## Exercise 2: Switch to IBM i Agent Mode (2 minutes)
-
-**Objective**: Activate the IBM i-specific AI agent.
-
-1. Ask Bob: `"Switch to IBM i Agent mode"` or switch mode from the Bob IDE.
-2. Ask Bob: `"What can you help me with?"`
-3. Bob should describe its IBM i capabilities
-
-**✅ Success Criteria**: Bob confirms it's in IBM i Agent mode and describes IBM i-specific capabilities.
-
-## Exercise 3: Query System Status (3 minutes)
+## Exercise 2: Query System Status (3 minutes)
 
 **Objective**: Use Bob to check your IBM i system's performance.
 
@@ -182,7 +147,7 @@ Close and reopen IBM Bob to load the new configuration.
 
 **✅ Success Criteria**: Bob returns formatted system performance data from your IBM i system.
 
-## Exercise 4: Explore Database Objects (3 minutes)
+## Exercise 3: Explore Database Objects (3 minutes)
 
 **Objective**: Use Bob to explore your IBM i database.
 
@@ -198,7 +163,7 @@ Close and reopen IBM Bob to load the new configuration.
 
 **✅ Success Criteria**: Bob successfully queries and displays IBM i service information.
 
-## Exercise 5: Security Analysis (Optional - 2 minutes)
+## Exercise 4: Security Analysis (Optional - 2 minutes)
 
 **Objective**: Use Bob to perform a basic security check.
 
@@ -210,11 +175,11 @@ Close and reopen IBM Bob to load the new configuration.
 
 **✅ Success Criteria**: Bob executes security analysis tools and returns results (or explains permission requirements).
 
-## Exercise 6: (optional) Using Bob CLI (3 minutes)
+## Exercise 5: (optional) Using Bob Shell CLI (3 minutes)
 
 **Objective**: Learn to use Bob from the command line for general IBM i assistance.
 
-Bob provides a CLI that allows you to interact with AI agents from the terminal, making it perfect for quick questions, code generation, and documentation lookup.
+Bob provides a CLI, **Bob Shell** that allows you to interact with AI agents from the terminal, making it perfect for quick questions, code generation, and documentation lookup.
 
 
 ### Step 1: Verify Bob CLI is Available
