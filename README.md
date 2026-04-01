@@ -6,6 +6,9 @@ Six hands-on labs to learn IBM i modernization using IBM Bob AI assistant. Each 
 
 The application SAMCO is a simple order management system. It has a green screen interface and RPG code that is over 20 years old. It is a good example of a system that could benefit from modernization on the IBM i platform! 
 
+**NEW** : (beta, internal use only) Labs with the **Premium Package for IBM i** add-on to complement these IBM Bob 'Core' labs are now available. 
+See the [Premium Package page ](./lab100-premium-package-introduction.md) for details.
+
 ---
 
 ![alt text](pics/green-screen-to-react.png)
@@ -15,15 +18,15 @@ The application SAMCO is a simple order management system. It has a green screen
 ## 🎯 The Labs
 | Lab_Number | Description | Time | Lab Details      |
 |------------|-------------|------|------------------|
-| **Lab 0** | Discover the Application - Use Bob to understand legacy code structure, business rules, and program flow | 15 min | [Lab 101-0](#lab-101-0-discover-the-samco-application) |
-| **Lab 1** | RPG modernization & refactoring - Convert legacy RPG code to modern RPG | 15 min | [Lab 101-1](#lab-101-1-rpg-fixed-to-free-conversion) |
-| **Lab 2** | Build a Simple Article List - Create a modern web UI using React and Carbon Design System | 15 min | [Lab 101-2](#lab-101-2-build-a-simple-article-list) |
-| **Lab 3** | Convert RLA to SQL - Transform record-level access operations to modern SQL with JOINs | 15 min | [Lab 101-3](#lab-101-3-convert-rla-to-sql) |
-| **Lab 4** | IBM Bob with IBM i MCP - Configure Bob for IBM i development with MCP tools and custom modes | 15 min | [Lab 101-4](#lab-101-4-ibm-bob-with-ibm-i-mcp) |
-| **Lab 5** | PTF Management Assistant - Automate IBM i system management with Bob & ansible | 20 min | [Lab 101-5](#lab-101-5-ansible-assistant-for-ptf-management) |
+| **Lab 0** | Discover the Application - Use Bob to understand legacy code structure, business rules, and program flow | 15 min | [Lab 0](#lab-0-discover-the-samco-application) |
+| **Lab 1** | RPG modernization & refactoring - Convert legacy RPG code to modern RPG | 15 min | [Lab 1](#lab-1-rpg-fixed-to-free-conversion) |
+| **Lab 2** | Build a Simple Article List - Create a modern web UI using React and Carbon Design System | 15 min | [Lab 2](#lab-2-build-a-simple-article-list) |
+| **Lab 3** | Convert RLA to SQL - Transform record-level access operations to modern SQL with JOINs | 15 min | [Lab 3](#lab-3-convert-rla-to-sql) |
+| **Lab 4** | IBM Bob with IBM i MCP - Configure Bob for IBM i development with MCP tools and custom modes | 15 min | [Lab 4](#lab-4-ibm-bob-with-ibm-i-mcp) |
+| **Lab 5** | PTF Management Assistant - Automate IBM i system management with Bob & ansible | 20 min | [Lab 5](#lab-5-ansible-assistant-for-ptf-management) |
 
 
-### Lab 101-0: Discover the SAMCO Application
+### Lab 0: Discover the SAMCO Application
 **Time**: 15 minutes | **File**: [lab0-rpg-project-introduction.md](lab0-rpg-project-introduction.md)
 
 **What You'll Do:**
@@ -36,7 +39,7 @@ The application SAMCO is a simple order management system. It has a green screen
 
 ---
 
-### Lab 101-1: RPG Fixed-to-Free Conversion
+### Lab 1: RPG Fixed-to-Free Conversion
 **Time**: 15 minutes | **File**: [lab1-rpg-documentation-fixed-to-free.md](lab1-rpg-documentation-fixed-to-free.md)
 
 **What You'll Do:**
@@ -48,7 +51,7 @@ The application SAMCO is a simple order management system. It has a green screen
 
 ---
 
-### Lab 101-2: Build a Simple Article List
+### Lab 2: Build a Simple Article List
 **Time**: 15 minutes | **File**: [lab2-ui-modernization-react-carbon.md](lab2-ui-modernization-react-carbon.md)
 
 **What You'll Do:**
@@ -60,7 +63,7 @@ The application SAMCO is a simple order management system. It has a green screen
 
 ---
 
-### Lab 101-3: Convert RLA to SQL
+### Lab 3: Convert RLA to SQL
 **Time**: 15 minutes | **File**: [lab3-dds-to-sql-rla-refactoring.md](lab3-dds-to-sql-rla-refactoring.md)
 
 **What You'll Do:**
@@ -72,7 +75,7 @@ The application SAMCO is a simple order management system. It has a green screen
 
 ---
 
-### Lab 101-4: IBM Bob with IBM i MCP
+### Lab 4: IBM Bob with IBM i MCP
 **Time**: 15 minutes | **File**: [lab4-ibmi-mcp-mode.md](lab4-ibmi-mcp-mode.md)
 
 **What You'll Do:**
@@ -85,7 +88,7 @@ The application SAMCO is a simple order management system. It has a green screen
 
 ---
 
-### Lab 101-5: Ansible Assistant for PTF Management
+### Lab 5: Ansible Assistant for PTF Management
 **Time**: 20 minutes | **File**: [lab5-ansible-ptf-management.md](lab5-ansible-ptf-management.md)
 
 **What You'll Do:**
@@ -159,17 +162,17 @@ Explain what the s01lod subroutine does (lines 102-118).
 ```
 Start Here
     ↓
-Lab 101-0 (Discover SAMCO)
+Lab 0 (Discover SAMCO)
     ↓
-Lab 101-1 (RPG Basics)
+Lab 1 (RPG Basics)
     ↓
-Lab 101-3 (SQL Conversion)
+Lab 3 (SQL Conversion)
     ↓
-Lab 101-2 (Web UI)
+Lab 2 (Web UI)
     ↓
-Lab 101-4 (IBM i MCP)
+Lab 4 (IBM i MCP)
     ↓
-Lab 101-5 (Ansible Automation)
+Lab 5 (Ansible Automation)
     ↓
 Done! 🎉
 ```
