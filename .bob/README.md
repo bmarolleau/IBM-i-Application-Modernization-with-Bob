@@ -1,166 +1,219 @@
-# Bob MCP Setup for IBM i Tool Development
+# Bob project customization for IBM i development
 
-This directory contains configuration for using Bob (the MCP-powered tool builder) to create and manage IBM i SQL tools.
+This project defines two custom IBM i modes in [`.bob/custom_modes.yaml`](.bob/custom_modes.yaml). [`IBM i Dev`](.bob/custom_modes.yaml) is the general-purpose IBM i mode: use it to explain code, generate new RPG/CL/DDS/SQL/COBOL source, document applications, compile, and work with the same broad tool scope as Advanced. [`IBM i Modernization`](.bob/custom_modes.yaml) is the transformation mode: use it when converting or refactoring legacy assets such as fixed-form RPG to free-form, DDS to SQL DDL, or RPGLE to SQLRPGLE while preserving business behavior. In short, IBM i Dev helps you build, explain, and compile; IBM i Modernization helps you convert and modernize.
 
-## Quick Start
+Project rules are stored in [`.bob/rules/ibmi-rpg-standards.md`](.bob/rules/ibmi-rpg-standards.md), [`.bob/rules/ibmi-cl-standards.md`](.bob/rules/ibmi-cl-standards.md), and [`.bob/rules/ibmi-dds-standards.md`](.bob/rules/ibmi-dds-standards.md). These files define the coding conventions, terminology, and safety rules Bob should follow for RPG, CL, and DDS work.
 
-### 1. Create MCP Configuration File
-
-Copy the example configuration and customize it:
-
-```bash
-cp .bob/mcp.json.example .bob/mcp.json
-```
-
-Or create a file named `mcp.json` in this `.bob/` directory with the following structure:
-
-```json
-{
-  "mcpServers": {
-    "ibmi-mcp-server": {
-      "command": "npx",
-      "args": [
-        "ibmi-mcp-server"
-      ],
-      "cwd": "${workspaceFolder}",
-      "env": {
-        "TOOLS_YAML_PATH": ".bob/tools/services-tools.yaml",
-        "NODE_OPTIONS": "--no-deprecation",
-        "DB2i_HOST": "${DB2i_HOST}",
-        "DB2i_USER": "${DB2i_USER}",
-        "DB2i_PASS": "${DB2i_PASS}",
-        "DB2i_PORT": "${DB2i_PORT}",
-        "MCP_TRANSPORT_TYPE": "stdio"
-      },
-      "disabled": false,
-      "alwaysAllow": []
-    },
-    "ibmi-mcp-docs": {
-      "type": "streamable-http",
-      "url": "https://ibm-d95bab6e.mintlify.app/mcp"
-    }
-  }
-}
-```
-
-### 2. Set Up Environment Variables
-
-Bob uses environment variable references (`${VAR_NAME}`) that need to be defined.
-
-```bash
-export DB2i_HOST="your-ibmi-hostname.com"
-export DB2i_USER="your-username"
-export DB2i_PASS="your-password"
-export DB2i_PORT="8076"
-```
-
-**Replace these values:**
-
-- **`DB2i_HOST`**: Your IBM i system hostname or IP address
-- **`DB2i_USER`**: Your IBM i user profile
-- **`DB2i_PASS`**: Your IBM i password
-- **`DB2i_PORT`**: Your IBM i Mapepire database port (default: 8076)
-
-**Security Note**: Environment variables keep credentials out of configuration files. The `mcp.json` file is gitignored to avoid committing sensitive data.
-
-### 3. Install the Server Package (If Using npx)
-
-The template uses `npx ibmi-mcp-server` which requires the package to be installed:
-
-```bash
-cd ibmi-mcp-server
-npm install
-npm run build
-```
-
-## Using Bob to Create Tools
-
-Once configured, Bob can help you:
-
-1. **Create new SQL tool definitions** in YAML format
-2. **Validate tool configurations** against the schema
-3. **Test tools** against your IBM i system
-4. **Generate documentation** for your tools
-
-Bob has access to:
-- The complete IBM i MCP server codebase
-- YAML configuration schemas and validation
-- Example tools in `tools/`
-- Direct execution capabilities on your IBM i system (via the MCP server)
-- Live IBM i MCP Server documentation (via `ibmi-mcp-docs` server)
-
-### MCP Servers in Configuration
-
-The `mcp.json` includes two MCP servers:
-
-1. **`ibmi-mcp-server`**: Your local development server
-   - Executes SQL queries against your IBM i system
-   - Loads tools from `TOOLS_YAML_PATH` (default: `.bob/tools/services-tools.yaml`)
-   - Uses `npx ibmi-mcp-server` to run the server
-   - Set `"disabled": false` to enable (or `true` to disable)
-
-2. **`ibmi-mcp-docs`**: Live documentation server (experimental)
-   - Provides up-to-date documentation via HTTP MCP transport
-   - URL: `https://ibm-d95bab6e.mintlify.app/mcp`
-   - Bob can query this for the latest API docs and examples
-
-## Tool Development Workflow
-
-### Creating a New Tool with Bob
-
-1. Tell Bob what you want to query from IBM i
-2. Bob will create the YAML configuration
-3. Bob can validate it: `npm run validate -- --tools path/to/your-tool.yaml`
-4. Bob can test it by calling the tool through the MCP server
-5. Iterate on the tool definition based on results
-
-### Example Request
-
-> "Create a tool that lists all active jobs for a specific user on IBM i, with parameters for the username and maximum results to return."
-
-Bob will generate the YAML, validate it, and can test it against your connected IBM i system.
+Use the mode that matches the task, then ask directly for the work to perform. Examples: “Explain this RPG program” or “Compile this CLLE” with IBM i Dev; “Convert this DDS PF to SQL table” or “Modernize this fixed-form RPGLE” with IBM i Modernization. The markdown files in [`.bob/modes/`](.bob/modes/) are reference documentation, while the active mode configuration loaded by Bob is [`.bob/custom_modes.yaml`](.bob/custom_modes.yaml).
 
 ## Directory Structure
 
 ```
 .bob/
-├── README.md                    # This file - setup instructions
-├── mcp.json.example             # Template configuration (committed)
-├── mcp.json                     # Your actual configuration (not committed)
-└── tools/                       # Your custom tool definitions (not committed)
-    └── services-tools.yaml      # Example: Service-related tools (referenced in mcp.json)
+├── README.md                      # This file
+├── modes/                         # Mode definitions
+│   ├── ibmi-developer.md         # IBM i Developer mode
+│   └── ibmi-modernization.md     # IBM i Modernization mode
+└── rules/                         # Coding standards
+    ├── ibmi-rpg-standards.md     # RPG programming standards
+    ├── ibmi-cl-standards.md      # CL programming standards
+    └── ibmi-dds-standards.md     # DDS specifications standards
 ```
 
-**Note**: The `TOOLS_YAML_PATH` in `mcp.json` points to `.bob/tools/services-tools.yaml` which comes predefined with tools for helping Bob create more tools.
+## Modes
 
-## Validation
+### IBM i Developer Mode
+**File:** `modes/ibmi-developer.md`  
+**Slug:** `ibm-i-developer`  
+**Purpose:** Explain, generate, compile, or document IBM i code
 
-All tool configurations must pass validation before deployment:
+Use this mode for:
+- Code explanation (RPG, CL, DDS, SQL, COBOL)
+- Code generation from requirements
+- Compilation guidance
+- Documentation generation (inline comments, architecture docs, business rules)
 
-```bash
-# Validate a single file
-npm run validate -- --tools path/to/tool.yaml
+### IBM i Modernization Mode
+**File:** `modes/ibmi-modernization.md`  
+**Slug:** `ibm-i-modernization`  
+**Purpose:** Convert and refactor IBM i code to modern standards
 
-# Validate a directory of YAML files
-npm run validate -- --tools-dir path/to/tools/
+Use this mode for:
+- Converting RPGLE fixed-form to free-form
+- Converting RPG II/III to RPGLE
+- Migrating DDS to SQL DDL
+- Converting RPGLE to SQLRPGLE (embedded SQL)
+- Refactoring subroutines to procedures
+- Modernizing code structure
+- Removing dead code
 
-# Validate with verbose output
-npm run validate -- --tools-dir path/to/tools/ --verbose
-```
+## Coding Standards
 
-The validator checks:
-- ✅ JSON schema compliance
-- ✅ Cross-file source references (tools → sources)
-- ✅ Cross-file toolset references (toolsets → tools)
-- ✅ Parameter type definitions
-- ✅ Required field presence
+### RPG Standards
+**File:** `rules/ibmi-rpg-standards.md`
 
-## Best Practices
+Comprehensive guide covering:
+- RPG language variants (OPM RPG, ILE RPG)
+- Fixed-form specifications (H, F, D, I, C, O, P)
+- Free-form syntax (Ctl-Opt, Dcl-F, Dcl-S, Dcl-Ds, etc.)
+- Built-in functions (BIFs)
+- Data types and indicators
+- File operations (traditional and SQL)
+- Error handling patterns
+- Best practices and common pitfalls
+- Compilation commands
 
-1. **Always validate** before deploying: `npm run validate -- --tools-dir path/`
-2. **Use meaningful names** for tools, parameters, and sources
-3. **Document parameters** with clear descriptions and examples
-4. **Group related tools** into logical toolsets
-5. **Test incrementally** - validate and test each tool as you build it
-6. **Use named parameters** (`:param_name`) not positional (`?`)
-7. **Default to read-only** - use `readOnly: true` unless modification is required
+### CL Standards
+**File:** `rules/ibmi-cl-standards.md`
+
+Comprehensive guide covering:
+- CL language variants (CL, CLP, CLLE)
+- Program structure and variable declarations
+- Common CL commands (file, library, object, job operations)
+- Control structures (IF-THEN-ELSE, DO, GOTO, loops)
+- Error handling (MONMSG)
+- Operators and built-in functions
+- Command definitions
+- Best practices and common pitfalls
+- Compilation commands
+
+### DDS Standards
+**File:** `rules/ibmi-dds-standards.md`
+
+Comprehensive guide covering:
+- DDS file types (Physical, Logical, Display, Printer)
+- Column layouts and specifications
+- Data types and keywords
+- Physical files (database tables)
+- Logical files (views and indexes)
+- Display files (screen layouts and subfiles)
+- Printer files (report layouts)
+- Migration to SQL DDL
+- Best practices and common pitfalls
+- Compilation commands
+
+## IBM i Terminology
+
+### QSYS File System
+- **Libraries** (not directories)
+- **Source files** (not folders)
+- **Members** (not files)
+- Format: `/LIBRARY/SOURCEFILE/MEMBER.EXTENSION`
+
+### IFS File System
+- **Stream files** (not files)
+- **Directories** (for folders)
+- Format: `/home/user/path/to/file.ext`
+
+## File Extensions
+
+| Extension | Description |
+|-----------|-------------|
+| `.rpg` | OPM RPG (RPG II, RPG III) |
+| `.rpgle` | ILE RPGLE programs |
+| `.sqlrpg` | OPM RPG with embedded SQL |
+| `.sqlrpgle` | ILE RPGLE with embedded SQL |
+| `.cl`, `.clp` | CL programs |
+| `.clle` | ILE CL programs |
+| `.cmd` | Command definitions |
+| `.pf` | Physical files (DDS) |
+| `.lf` | Logical files (DDS) |
+| `.dspf` | Display files (DDS) |
+| `.prtf` | Printer files (DDS) |
+| `.sql` | SQL DDL |
+
+## Key Concepts
+
+### Code Generation Principles
+1. **Complete Implementation:** Never generate stubs or placeholders
+2. **Modern Practices:** Use embedded SQL for database operations
+3. **Error Handling:** Always check SQLCODE/SQLSTATE
+4. **Proper Initialization:** Initialize all variables and data structures
+5. **Resource Management:** Use `*INLR = *ON` at program end
+6. **Documentation:** Add meaningful comments where needed
+
+### Modernization Principles
+1. **Preserve Logic:** Never modify business logic during conversion
+2. **Incremental Approach:** Work step-by-step, verify each change
+3. **Functional Equivalence:** Ensure 100% equivalence after conversion
+4. **Track Progress:** Use todo lists for complex conversions
+5. **Verify Results:** Compile and test after each phase
+
+### Best Practices
+1. **Naming:** Use meaningful names (max 10 characters for objects)
+2. **Structure:** Keep code modular and maintainable
+3. **SQL First:** Prefer embedded SQL over traditional file operations
+4. **Error Handling:** Implement comprehensive error checking
+5. **Documentation:** Document complex logic and business rules
+6. **Testing:** Compile and test iteratively
+
+## Common Workflows
+
+### Code Explanation Workflow
+1. Identify request type (explanation, architecture, business rules, etc.)
+2. DO NOT read code yourself initially
+3. Provide structured explanation following IBM i best practices
+4. Include code snippets with explanations
+5. Document business logic and technical details
+
+### Code Generation Workflow
+1. Analyze requirements thoroughly
+2. Determine target language and file system
+3. Generate complete, production-ready code
+4. Follow language-specific standards
+5. Offer compilation after generation
+6. Verify successful compilation
+
+### Modernization Workflow
+1. Perform pre-conversion analysis
+2. Document current program structure
+3. Execute conversion phase by phase
+4. Verify each phase before proceeding
+5. Update documentation
+6. Offer compilation and testing
+
+## Integration with Bob
+
+These templates are designed to work with Bob core without requiring specific IBM i tool extensions. They provide:
+
+1. **Mode Definitions:** Clear role definitions and workflows
+2. **Coding Standards:** Comprehensive language references
+3. **Best Practices:** Industry-standard patterns and conventions
+4. **Common Patterns:** Reusable code examples
+5. **Compilation Guidance:** CL commands for building programs
+
+## Usage
+
+To use these templates with Bob:
+
+1. Place the `.bob` directory in your project root
+2. Reference modes by their slug (e.g., `ibm-i-developer`)
+3. Bob will automatically load the mode definitions and rules
+4. Follow the workflows defined in each mode
+
+## Contributing
+
+When adding new modes or rules:
+
+1. Follow the existing structure and format
+2. Include comprehensive examples
+3. Document common pitfalls
+4. Provide compilation commands
+5. Keep content focused and practical
+
+## License
+
+These templates are based on IBM i development best practices and industry standards. They are provided as-is for use with Bob AI assistant.
+
+## Version
+
+Version: 1.0.0  
+Last Updated: 2024-01-01
+
+## References
+
+- IBM i Knowledge Center
+- RPG IV Reference
+- CL Programming Guide
+- DDS Reference
+- SQL for IBM i Reference
