@@ -313,7 +313,7 @@ Draft documentation: Build with vscode not documented yet. Dependency management
 **1. Install Tobi on IBM i** (if not already installed):
 ```bash
 # SSH to your IBM i system
-yum install ibmi-tobi
+yum install tobi
 ```
 
 **2. Optional - Configure VS Code Connection:**
@@ -354,7 +354,10 @@ The build process compiles all source types: RPG, COBOL, CL, DDS, SQL, etc.
 
 **5. Populate Db2 tables**
 
-Use [SAMCO/POPULATE_SAMCO_TABLES.sql](./SAMCO/POPULATE_SAMCO_TABLES.sql) to populate the tables with sample data. You can run this from the IBM i Navigator or from the IBM i Access Client Solutions.
+Use [SAMCO/POPULATE_SAMCO_TABLES.sql](./SAMCO/POPULATE_SAMCO_TABLES.sql) to populate the tables with sample data. You can run this from the IBM i Navigator or from the IBM i Access Client Solutions. You can also use the following command in PASE: 
+```bash
+system "RUNSQLSTM SRCSTMF('/home/YOURUSER/IBM-i-Application-Modernization-with-Bob/SAMCO/POPULATE_SAMCO_TABLES.sql') COMMIT(*NONE)"
+```
 
 ### Testing the Green Screen Application
 
