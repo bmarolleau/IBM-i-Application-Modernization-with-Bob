@@ -41,18 +41,48 @@ Follow these [instructions](https://ibm-d95bab6e.mintlify.app/setup-mapepire#opt
 In a nutshell: 
 1. connect to your IBM i with [Access Client Solution](https://www.ibm.com/support/pages/ibm-i-access-client-solutions) (5250 emulator) and your user profile.
 2. start SSH using the CL command `STRTCPSVR *SSHD` , 
-3. connect with ssh and you user profile, then execute the commands :
-    - ``/QOpenSys/pkgs/bin/yum install mapepire-server``
-    - ``/QOpenSys/pkgs/bin/yum install service-commander``
-    - ``sc start mapepire``
+3. Connect via SSH and execute the installation commands.
 
-4. If using a TechZone [IBM i on IBM Cloud Power Virtual Server](https://techzone.ibm.com/collection/628be988043b54001f89111f), create the ssh tunnel using the following command on your Linux/MacOS laptop (for Windows, please use the reference [here](https://cloud.ibm.com/docs/power-iaas?topic=power-iaas-connect-ibmi#ssh-tunneling)):
+> **Note:** On PowerVS, you must use the provided private SSH key.
 
-````bash 
-ssh -L 50000:localhost:23 -L 2001:localhost:2001  -L 449:localhost:449 -L 8470:localhost:8470 -L 8471:localhost:8471 -L 8472:localhost:8472 -L 2007:localhost:2007 -L 8473:localhost:8473 -L 8474:localhost:8474 -L 8475:localhost:8475 -L 8476:localhost:8476 -L 2003:localhost:2003 -L 2002:localhost:2002 -L 2006:localhost:2006 -L 2300:localhost:2300 -L 2323:localhost:2323 -L 3001:localhost:3001 -L 3002:localhost:3002 -L 2005:localhost:2005 -L 8076:localhost:8076 -o ExitOnForwardFailure=yes -o ServerAliveInterval=15 -o ServerAliveCountMax=3 <myuser>@<myIPaddress>
-````
-Note that in the command above, port 8076 is the default **mapepire** port. If you have changed it, please update it accordingly. Replace `<myuser>` and `<myIPaddress>` with your IBM i user and IP address.
+```bash
+chmod 600 PATH/TO/pem_user_privatekey_download.pem
+ssh -i PATH/TO/pem_user_privatekey_download.pem cecuser@<IBMi_IP_ADDRESS>
+```
 
+### Install and start mapepire
+
+```bash
+/QOpenSys/pkgs/bin/yum install -y mapepire-server
+/QOpenSys/pkgs/bin/yum install -y service-commander
+/QOpenSys/pkgs/bin/sc start mapepire
+```
+
+### Connection Options
+
+You have two ways to connect to your IBM i system:
+
+#### Option A: PowerVS (IBM Cloud)
+
+- Requires an SSH tunnel (service is not directly exposed)
+- Use the provided private SSH key
+
+##### Create SSH tunnel
+
+```bash 
+ssh -i PATH/TO/pem_user_privatekey_download.pem \
+-L 8076:localhost:8076 \
+-o ServerAliveInterval=15 \
+-o ServerAliveCountMax=3 \
+cecuser@<IBMi_IP_ADDRESS>
+```
+
+Note that in the command above, port 8076 is the default **mapepire** port. If you have changed it, please update it accordingly. Replace `<myIPaddress>` with your IBM i IP address.
+
+#### Option B: _On-Premise_ IBM i (TechZone LPAR)
+
+- Direct access to the LPAR
+- No SSH tunnel required
 
 ## Lab Setup (5 minutes)
 
@@ -64,17 +94,35 @@ Create a new directory on your laptop, Open up this new folder in a new Bob wind
 
 Create a `.env` file in your project root with your IBM i credentials:
 
+#### Option A: Using PowerVS
+
+Since you are using an SSH tunnel, point to `localhost`:
+
 ```bash
 # .env file
-DB2i_HOST=your-ibmi-hostname.com
-DB2i_USER=YOURUSER
+DB2i_HOST=localhost
+DB2i_USER=cecuser
 DB2i_PASS=yourpassword
 DB2i_PORT=8076
 ```
 
-Replace `ìbmi-hostanme.com`, `YOURUSER`, `yourpassword` by the corresponding values.
+Replace `yourpassword` by the corresponding value.
 
-**Important**: Add `.env` to `.gitignore`:
+#### Option B: Using On-Premise IBM i Base image
+
+Use the hostname or IP address of your system:
+
+```bash
+# .env file
+DB2i_HOST=your-ibmi-hostname.com
+DB2i_USER=cecuser
+DB2i_PASS=yourpassword
+DB2i_PORT=8076
+```
+
+Replace `yourpassword` by the corresponding value.
+
+**Important**: For both options add `.env` to `.gitignore`:
 
 ```bash
 echo ".env" >> .gitignore
