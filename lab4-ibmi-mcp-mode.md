@@ -41,7 +41,7 @@ Before starting, ensure you have:
 
 - ✅ Access to an IBM i system with SSH access
 - ✅ IBM i user profile with appropriate database authorities
-- ✅ VS Code with Bob extension installed
+- ✅ Bob IDE installed
 - ✅ Basic understanding of IBM i and SQL
 
 An IBM i VM is necessary for this lab, with 8076 port open for Mapepire server (use tunneling if using Power Virtual Server/TechZone). You'll find hereunder a few options to get an IBM i virtual machine, and instructions to start the Mapepire server on IBM i that is requried for this lab.
@@ -87,7 +87,7 @@ In this lab, we'll use the following setup:
 ```
 
 **Key Components:**
-- **Bob (VS Code)** - AI agent that sends requests to MCP server
+- **Bob** - AI agent that sends requests to MCP server
 - **MCP Server** - Runs on IBM i, exposes SQL tools via HTTP
 - **Mapepire** - Database server that executes SQL queries
 - **Db2 for i** - IBM i database system
