@@ -40,7 +40,7 @@ Look at these files and explain:
 4. What is the final product this application manages end-to-end?
 
 Keep the explanation simple — I am new to this codebase.
-```
+    
 
 **What to Look For:**
 - Bob identifies SAMCO as an order management system

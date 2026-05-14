@@ -1,5 +1,7 @@
 .env
 .bob/mcp.json
+.vscode/mcp.json
+../.mcp.json
 .DS_Store
 lab100-premium-package-introduction.md
 lab101-premium-devops-buildsamco.md

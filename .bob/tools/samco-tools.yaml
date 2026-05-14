@@ -1,0 +1,1870 @@
+sources:
+  ibmi-system:
+    host: ${DB2i_HOST}
+    user: ${DB2i_USER}
+    password: ${DB2i_PASS}
+    port: 54999
+    ignore-unauthorized: true
+
+tools:  # === from employee-info.yaml ===
+  get_employee_details:
+    source: ibmi-system
+    description: Retrieve detailed information about an employee including department and manager
+    statement: |
+      SELECT 
+        E.EMPNO, 
+        E.FIRSTNME, 
+        E.MIDINIT, 
+        E.LASTNAME, 
+        E.JOB, 
+        E.HIREDATE, 
+        E.SALARY, 
+        E.BONUS, 
+        E.WORKDEPT,
+        D.DEPTNAME,
+        D.LOCATION,
+        M.FIRSTNME AS MGR_FIRSTNME,
+        M.LASTNAME AS MGR_LASTNAME
+      FROM SAMPLE.EMPLOYEE E
+      LEFT JOIN SAMPLE.DEPARTMENT D ON E.WORKDEPT = D.DEPTNO
+      LEFT JOIN SAMPLE.EMPLOYEE M ON D.MGRNO = M.EMPNO
+      WHERE E.EMPNO = :employee_id
+    parameters:
+      - name: employee_id
+        type: string
+        description: "Employee ID (e.g., '000010') - Must be 6 digits"
+        required: true
+        pattern: "^[0-9]{6}$"
+    responseFormat: markdown
+    security:
+      readOnly: true
+    annotations:
+      readOnlyHint: true
+      idempotentHint: true
+      domain: "hr"
+      category: "employee-info"
+      title: "Get Employee Details"
+
+  find_employees_by_department:
+    source: ibmi-system
+    description: List employees in a specific department
+    statement: |
+      SELECT 
+        E.EMPNO, 
+        E.FIRSTNME, 
+        E.MIDINIT, 
+        E.LASTNAME, 
+        E.JOB, 
+        E.HIREDATE, 
+        E.SALARY
+      FROM SAMPLE.EMPLOYEE E
+      WHERE E.WORKDEPT = :department_id
+      ORDER BY E.LASTNAME, E.FIRSTNME
+    parameters:
+      - name: department_id
+        type: string
+        description: "Department ID - Select from predefined departments"
+        required: true
+        enum: ["A00", "B01", "C01", "D01", "E01"]
+    security:
+      readOnly: true
+    annotations:
+      readOnlyHint: true
+      idempotentHint: true
+      domain: "hr"
+      category: "employee-info"
+      title: "Find Employees by Department"
+
+  find_employees_by_job:
+    source: ibmi-system
+    description: Find employees with a specific job title
+    statement: |
+      SELECT 
+        E.EMPNO, 
+        E.FIRSTNME, 
+        E.MIDINIT, 
+        E.LASTNAME, 
+        E.WORKDEPT,
+        D.DEPTNAME,
+        E.HIREDATE, 
+        E.SALARY
+      FROM SAMPLE.EMPLOYEE E
+      LEFT JOIN SAMPLE.DEPARTMENT D ON E.WORKDEPT = D.DEPTNO
+      WHERE E.JOB = :job_title
+      ORDER BY E.LASTNAME, E.FIRSTNME
+    parameters:
+      - name: job_title
+        type: string
+        description: "Job title - Select from common job titles"
+        required: true
+        enum: ["MANAGER", "ANALYST", "DESIGNER", "CLERK", "SALESREP", "PRES"]
+    security:
+      readOnly: true
+    annotations:
+      readOnlyHint: true
+      idempotentHint: true
+      domain: "hr"
+      category: "employee-info"
+      title: "Find Employees by Job Title"
+
+  get_employee_projects:
+    source: ibmi-system
+    description: List projects an employee is working on
+    statement: |
+      SELECT 
+        P.PROJNO,
+        P.PROJNAME,
+        A.ACTNO,
+        A.ACTDESC,
+        EPA.EMSTDATE AS START_DATE,
+        EPA.EMENDATE AS END_DATE,
+        EPA.EMPTIME
+      FROM SAMPLE.EMPPROJACT EPA
+      JOIN SAMPLE.PROJECT P ON EPA.PROJNO = P.PROJNO
+      JOIN SAMPLE.PROJACT PA ON EPA.PROJNO = PA.PROJNO AND EPA.ACTNO = PA.ACTNO
+      JOIN SAMPLE.ACT A ON EPA.ACTNO = A.ACTNO
+      WHERE EPA.EMPNO = :employee_id
+      AND (:include_completed = 1 OR EPA.EMENDATE IS NULL)
+      ORDER BY EPA.EMSTDATE DESC
+    parameters:
+      - name: employee_id
+        type: string
+        description: "Employee ID (e.g., '000010') - Must be 6 digits"
+        required: true
+        pattern: "^[0-9]{6}$"
+      - name: include_completed
+        type: boolean
+        description: "Include completed projects (true) or only active projects (false)"
+        default: true
+    security:
+      readOnly: true
+    annotations:
+      readOnlyHint: true
+      idempotentHint: true
+      domain: "hr"
+      category: "project-assignments"
+      title: "Get Employee Projects"
+
+  get_department_salary_stats:
+    source: ibmi-system
+    description: Salary statistics by department with optional salary range filter
+    statement: |
+      SELECT 
+        D.DEPTNO,
+        D.DEPTNAME,
+        COUNT(E.EMPNO) AS EMPLOYEE_COUNT,
+        AVG(E.SALARY) AS AVG_SALARY,
+        MIN(E.SALARY) AS MIN_SALARY,
+        MAX(E.SALARY) AS MAX_SALARY,
+        SUM(E.SALARY) AS TOTAL_SALARY
+      FROM SAMPLE.DEPARTMENT D
+      LEFT JOIN SAMPLE.EMPLOYEE E ON D.DEPTNO = E.WORKDEPT
+      WHERE (D.DEPTNO = :department_id OR :department_id = '*ALL')
+      AND (E.SALARY >= :min_salary OR :min_salary IS NULL)
+      AND (E.SALARY <= :max_salary OR :max_salary IS NULL)
+      GROUP BY D.DEPTNO, D.DEPTNAME
+      ORDER BY D.DEPTNO
+    parameters:
+      - name: department_id
+        type: string
+        description: "Department ID (e.g., 'A00') or '*ALL' for all departments"
+        default: "*ALL"
+      - name: min_salary
+        type: integer
+        description: "Minimum salary filter (optional)"
+        min: 0
+        max: 100000
+        default: 0
+      - name: max_salary
+        type: integer
+        description: "Maximum salary filter (optional)"
+        min: 0
+        max: 100000
+        default: 100000
+    security:
+      readOnly: true
+    annotations:
+      readOnlyHint: true
+      idempotentHint: true
+      domain: "hr"
+      category: "salary-analysis"
+      title: "Department Salary Statistics"
+
+  find_project_team_members:
+    enabled: true
+    source: ibmi-system
+    description: Find all employees working on specific projects. Accepts a JSON array of project IDs.
+    statement: |
+      SELECT
+        E.EMPNO,
+        E.FIRSTNME,
+        E.MIDINIT,
+        E.LASTNAME,
+        E.JOB,
+        E.WORKDEPT,
+        D.DEPTNAME,
+        EPA.PROJNO,
+        EPA.EMSTDATE AS PROJECT_START_DATE,
+        EPA.EMENDATE AS PROJECT_END_DATE,
+        EPA.EMPTIME AS TIME_ALLOCATION
+      FROM SAMPLE.EMPPROJACT EPA
+      JOIN SAMPLE.EMPLOYEE E ON EPA.EMPNO = E.EMPNO
+      LEFT JOIN SAMPLE.DEPARTMENT D ON E.WORKDEPT = D.DEPTNO
+      WHERE EPA.PROJNO IN (:project_ids)
+      ORDER BY EPA.PROJNO, E.LASTNAME, E.FIRSTNME
+    parameters:
+      - name: project_ids
+        type: array
+        itemType: string
+        description: "Array of project IDs to search for. Must be a JSON array, not a string. Example: [\"MA2100\", \"AD3100\", \"AD3110\"]"
+        required: true
+        minLength: 1
+        maxLength: 10
+    security:
+      readOnly: true
+    annotations:
+      readOnlyHint: true
+      idempotentHint: true
+      domain: "hr"
+      category: "project-assignments"
+      title: "Find Project Team Members"
+
+  calculate_employee_bonus:
+    source: ibmi-system
+    description: Calculate potential bonus for an employee based on performance rating and salary
+    statement: |
+      SELECT 
+        E.EMPNO, 
+        E.FIRSTNME, 
+        E.LASTNAME, 
+        E.SALARY,
+        E.SALARY * :performance_multiplier AS CALCULATED_BONUS
+      FROM SAMPLE.EMPLOYEE E
+      WHERE E.EMPNO = :employee_id
+    parameters:
+      - name: employee_id
+        type: string
+        description: "Employee ID (e.g., '000010')"
+        required: true
+        pattern: "^[0-9]{6}$"
+      - name: performance_multiplier
+        type: float
+        description: "Performance rating multiplier (0.0-0.3)"
+        required: true
+        min: 0.0
+        max: 0.3
+        default: 0.1
+    security:
+      readOnly: true
+    annotations:
+      readOnlyHint: true
+      idempotentHint: true
+      domain: "hr"
+      category: "salary-analysis"
+      title: "Calculate Employee Bonus"
+
+  search_employees:
+    source: ibmi-system
+    description: Search for employees by name with pagination
+    statement: |
+      SELECT 
+        E.EMPNO, 
+        E.FIRSTNME, 
+        E.MIDINIT, 
+        E.LASTNAME, 
+        E.JOB, 
+        E.WORKDEPT,
+        D.DEPTNAME
+      FROM SAMPLE.EMPLOYEE E
+      LEFT JOIN SAMPLE.DEPARTMENT D ON E.WORKDEPT = D.DEPTNO
+      WHERE UPPER(E.FIRSTNME) LIKE UPPER('%' || :name_search || '%')
+      OR UPPER(E.LASTNAME) LIKE UPPER('%' || :name_search || '%')
+      ORDER BY E.LASTNAME, E.FIRSTNME
+      LIMIT :page_size OFFSET (:page_number - 1) * :page_size
+    parameters:
+      - name: name_search
+        type: string
+        description: "Name to search for (partial match)"
+        required: true
+        minLength: 2
+      - name: page_size
+        type: integer
+        description: "Number of results per page"
+        default: 10
+        min: 1
+        max: 100
+      - name: page_number
+        type: integer
+        description: "Page number (starting from 1)"
+        default: 1
+        min: 1
+    security:
+      readOnly: true
+    annotations:
+      readOnlyHint: true
+      idempotentHint: true
+      domain: "hr"
+      category: "employee-info"
+      title: "Search Employees"
+
+  # === from library-list-security.yaml ===
+  get_system_library_list_config:
+    source: ibmi-system
+    description: "Retrieve the system portion of the library list configuration from system values"
+    statement: |
+      SELECT system_value
+        FROM qsys2.system_value_info
+        WHERE system_value_name = 'QSYSLIBL'
+    security:
+      readOnly: true
+    annotations:
+      readOnlyHint: true
+      idempotentHint: true
+      domain: "security"
+      category: "library-list"
+
+  get_system_library_list_details:
+    source: ibmi-system
+    description: "Get detailed information about the system portion of the library list"
+    statement: |
+      SELECT *
+        FROM qsys2.library_list_info
+        WHERE "TYPE" = 'SYSTEM'
+    security:
+      readOnly: true
+    annotations:
+      readOnlyHint: true
+      idempotentHint: true
+      domain: "security"
+      category: "library-list"
+
+  check_chgsyslibl_security:
+    source: ibmi-system
+    description: "Check if the Change System Library List command is properly secured (should be *EXCLUDE for *PUBLIC)"
+    statement: |
+      SELECT object_authority
+        FROM qsys2.object_privileges
+        WHERE system_object_schema = 'QSYS' 
+          AND system_object_name = 'CHGSYSLIBL' 
+          AND object_type = '*CMD'
+          AND authorization_name = '*PUBLIC'
+    security:
+      readOnly: true
+    annotations:
+      readOnlyHint: true
+      idempotentHint: true
+      domain: "security"
+      category: "library-list"
+
+  get_user_library_list_config:
+    source: ibmi-system
+    description: "Retrieve the user portion of the library list configuration from system values"
+    statement: |
+      SELECT system_value
+        FROM qsys2.system_value_info
+        WHERE system_value_name = 'QUSRLIBL'
+    security:
+      readOnly: true
+    annotations:
+      readOnlyHint: true
+      idempotentHint: true
+      domain: "security"
+      category: "library-list"
+
+  get_complete_library_list:
+    source: ibmi-system
+    description: "Get detailed information about the complete library list"
+    statement: |
+      SELECT *
+        FROM qsys2.library_list_info
+    security:
+      readOnly: true
+    annotations:
+      readOnlyHint: true
+      idempotentHint: true
+      domain: "security"
+      category: "library-list"
+
+  analyze_library_list_security:
+    source: ibmi-system
+    description: "Analyze the security configuration of all libraries in the library list"
+    statement: |
+      SELECT libl.*, priv.*
+        FROM qsys2.library_list_info libl, LATERAL (
+               SELECT *
+                 FROM TABLE (
+                     qsys2.object_privileges(
+                       system_object_schema => 'QSYS',
+                       system_object_name   => system_schema_name, 
+                       object_type          => '*LIB')
+                   )
+             ) priv
+        WHERE priv.authorization_user = '*PUBLIC'
+    security:
+      readOnly: true
+    annotations:
+      readOnlyHint: true
+      idempotentHint: true
+      domain: "security"
+      category: "library-list-security"
+
+  find_vulnerable_libraries:
+    source: ibmi-system
+    description: "Identify libraries in the library list with *PUBLIC authority not set to *USE (potential security risk)"
+    statement: |
+      SELECT libl.system_schema_name AS lib_name, priv.authorization_user AS user_name,
+             priv.object_authority
+        FROM qsys2.library_list_info libl, LATERAL (
+               SELECT *
+                 FROM TABLE (
+                     qsys2.object_privileges(
+                       system_object_schema => 'QSYS', system_object_name => system_schema_name,
+                       object_type => '*LIB')
+                   )
+             ) priv
+        WHERE priv.authorization_user = '*PUBLIC' AND 
+              priv.object_authority   <> '*USE'   AND
+              libl.system_schema_name not in ('QTEMP')
+    security:
+      readOnly: true
+    annotations:
+      readOnlyHint: true
+      idempotentHint: true
+      domain: "security"
+      category: "library-list-security"
+
+  check_library_security:
+    source: ibmi-system
+    description: "Check the security configuration of a specific library"
+    statement: |
+      SELECT priv.*
+        FROM TABLE (
+            qsys2.object_privileges(
+              system_object_schema => 'QSYS', 
+              system_object_name => :library_name,
+              object_type => '*LIB')
+          ) priv
+        WHERE priv.authorization_user = '*PUBLIC'
+    parameters:
+      - name: library_name
+        type: string
+        description: "Name of the library to check"
+        required: true
+    security:
+      readOnly: true
+    annotations:
+      readOnlyHint: true
+      idempotentHint: true
+      domain: "security"
+      category: "library-list-security"
+
+  # === from object-statistics-dev.yaml ===
+  # 1. Find least recently used objects
+  find_least_recently_used_objects:
+    source: ibmi-system
+    responseFormat: markdown
+    description: Find Db2 for i objects that have been in existence for a specified time period but have never been used or are the least recently used, ordered by least recently ascending
+    statement: |
+      SELECT objname, objtype, DATE(last_used_timestamp) AS last_used,
+       TIMESTAMP(objcreated, 0) AS created, objsize, days_used_count, objlongschema, text,
+       sql_object_type
+      FROM TABLE(qsys2.object_statistics(
+        object_schema => :library_name, objtypelist => '*ALL', object_name => '*ALL'))
+      WHERE last_used_object = 'YES' AND (sql_object_type = 'TABLE' OR objattribute IN ('PF', 'LF')) AND
+        objcreated < current_timestamp - :months_unused MONTHS AND (last_used_timestamp IS null OR
+          last_used_timestamp < current_timestamp - :months_unused MONTHS)
+      ORDER BY COALESCE(last_used_timestamp, objcreated) ASC
+    parameters:
+      - name: library_name
+        type: string
+        description: "Library name. Examples: 'MYLIB', '*LIBL', '*USRLIBL', '*ALLUSR'"
+        required: true
+      - name: sql_object_type
+        type: string
+        description: "SQL object type to find."
+        required: false
+        default: "INDEX"
+        enum: [ALIAS, FUNCTION, INDEX, PACKAGE, PROCEDURE, ROUTINE, SEQUENCE, TABLE, TRIGGER, TYPE, VARIABLE, VIEW, XSR]
+      - name: months_unused
+        type: integer
+        description: "Look back this many months. Examples: 1 (past month), 3 (past 3 months), 6 (past 6 months)"
+        required: false
+        default: 1
+        min: 1
+        max: 120
+
+  # 2. Find stale/unused objects
+  find_stale_objects:
+    source: ibmi-system
+    responseFormat: markdown
+    description: Find objects that have NOT been used in a specified time period
+    statement: |
+      SELECT * FROM TABLE (
+        qsys2.object_statistics(
+          object_schema => :object_schema, objtypelist => '*ALL', object_name => '*ALL')
+      ) WHERE last_used_object = 'YES' AND (sql_object_type = 'TABLE' OR objattribute IN ('PF', 'LF')) AND
+          last_used_timestamp < current_timestamp - :months_unused MONTHS
+      ORDER BY COALESCE(last_used_timestamp, objcreated) ASC
+    parameters:
+      - name: object_schema
+        type: string
+        description: "Library name. Examples: 'MYLIB', '*LIBL', '*USRLIBL', '*ALLUSR'"
+        required: true
+      - name: sql_object_type
+        type: string
+        description: "SQL object type to find. Examples: 'INDEX', 'TABLE', 'VIEW'"
+        required: false
+        default: "INDEX"
+        enum: [ALIAS, FUNCTION, INDEX, PACKAGE, PROCEDURE, ROUTINE, SEQUENCE, TABLE, TRIGGER, TYPE, VARIABLE, VIEW, XSR]
+      - name: months_unused
+        type: integer
+        description: "Find objects not used in this many months. Examples: 1 (1 month), 6 (6 months), 12 (1 year)"
+        required: false
+        default: 12
+        min: 1
+        max: 120
+
+  # 3. Find objects that depend on a file
+  find_dependent_objects:
+    source: ibmi-system
+    responseFormat: markdown
+    description: Find all objects that depend on a specific database file (views, triggers, indexes, logical files, etc.)
+    statement: |
+      SELECT * FROM TABLE(SYSTOOLS.RELATED_OBJECTS(
+        LIBRARY_NAME => :library_name,
+        FILE_NAME => :file_name))
+      ORDER BY SQL_OBJECT_TYPE, SQL_NAME
+    parameters:
+      - name: library_name
+        type: string
+        description: "Library containing the file. Example: 'APPLIB', 'MYLIB'"
+        required: true
+      - name: file_name
+        type: string
+        description: "System name of the database file to analyze. Example: 'ORDERS', 'CUSTOMER'"
+        required: true
+
+  # 4. Find specific types of dependent objects
+  find_dependent_objects_by_type:
+    source: ibmi-system
+    responseFormat: markdown
+    description: Find specific types of objects that depend on a file (e.g., only indexes, only views, only triggers)
+    statement: |
+      SELECT * FROM TABLE(SYSTOOLS.RELATED_OBJECTS(
+        LIBRARY_NAME => :library_name,
+        FILE_NAME => :file_name))
+      WHERE SQL_OBJECT_TYPE = :object_type
+      ORDER BY SQL_NAME
+    parameters:
+      - name: library_name
+        type: string
+        description: "Library containing the file"
+        required: true
+      - name: file_name
+        type: string
+        description: "System name of the database file"
+        required: true
+      - name: object_type
+        type: string
+        description: "Type of dependent object to find. Common types: INDEX, VIEW, TRIGGER, LOGICAL FILE"
+        required: false
+        default: "INDEX"
+        enum: ["ALIAS", "FOREIGN KEY", "FUNCTION", "HISTORY TABLE", "INDEX", "KEYED LOGICAL FILE", "LOGICAL FILE", "MASK", "MATERIALIZED QUERY TABLE", "PERMISSION", "PROCEDURE", "TEXT INDEX", "TRIGGER", "VARIABLE", "VIEW", "XML SCHEMA"]
+
+  # === from performance.yaml ===
+  system_status:
+    source: ibmi-system
+    description: "Overall system performance statistics with CPU, memory, and I/O metrics"
+    parameters: []
+    statement: |
+      SELECT * FROM TABLE(QSYS2.SYSTEM_STATUS(RESET_STATISTICS=>'YES',DETAILED_INFO=>'ALL')) X
+
+  system_activity:
+    source: ibmi-system
+    description: "Current system activity information including active jobs and resource utilization"
+    parameters: []
+    statement: |
+      SELECT * FROM TABLE(QSYS2.SYSTEM_ACTIVITY_INFO())
+
+  remote_connections:
+    source: ibmi-system
+    description: "Number of established remote connections to the system"
+    parameters: []
+    statement: |
+      SELECT COUNT(REMOTE_ADDRESS) as REMOTE_CONNECTIONS 
+      FROM qsys2.netstat_info 
+      WHERE TCP_STATE = 'ESTABLISHED' 
+      AND REMOTE_ADDRESS != '::1' 
+      AND REMOTE_ADDRESS != '127.0.0.1'
+
+  memory_pools:
+    source: ibmi-system
+    description: "Information about memory pool sizes and thread utilization"
+    parameters: []
+    statement: |
+      SELECT POOL_NAME, CURRENT_SIZE, DEFINED_SIZE, 
+             MAXIMUM_ACTIVE_THREADS, CURRENT_THREADS, RESERVED_SIZE 
+      FROM TABLE(QSYS2.MEMORY_POOL(RESET_STATISTICS=>'YES')) X
+
+  temp_storage_buckets:
+    source: ibmi-system
+    description: "Information about named temporary storage usage"
+    parameters: []
+    statement: |
+      SELECT REPLACE(UPPER(REPLACE(GLOBAL_BUCKET_NAME, '*','')), ' ', '_') as NAME, 
+             BUCKET_CURRENT_SIZE as CURRENT_SIZE, BUCKET_PEAK_SIZE as PEAK_SIZE 
+      FROM QSYS2.SystmpSTG 
+      WHERE GLOBAL_BUCKET_NAME IS NOT NULL
+
+  unnamed_temp_storage:
+    source: ibmi-system
+    description: "Total usage of unnamed temporary storage buckets"
+    parameters: []
+    statement: |
+      SELECT SUM(BUCKET_CURRENT_SIZE) as CURRENT_SIZE, 
+             SUM(BUCKET_PEAK_SIZE) as PEAK_SIZE 
+      FROM QSYS2.SystmpSTG 
+      WHERE GLOBAL_BUCKET_NAME IS NULL
+
+  http_server:
+    source: ibmi-system
+    description: "Performance metrics for HTTP servers including connections and request handling"
+    parameters: []
+    statement: |
+      SELECT SERVER_NAME CONCAT '_' CONCAT REPLACE(HTTP_FUNCTION, ' ','_') as SERVER_FUNC, 
+             SERVER_NORMAL_CONNECTIONS, SERVER_SSL_CONNECTIONS, SERVER_ACTIVE_THREADS, 
+             SERVER_IDLE_THREADS, SERVER_TOTAL_REQUESTS, SERVER_TOTAL_REQUESTS_REJECTED, 
+             SERVER_TOTAL_RESPONSES, REQUESTS, RESPONSES, NONCACHE_RESPONSES, 
+             BYTES_RECEIVED, BYTES_SENT, NONCACHE_PROCESSING_TIME, CACHE_PROCESSING_TIME 
+      FROM QSYS2.HTTP_SERVER_INFO
+
+  system_values:
+    source: ibmi-system
+    description: "Current numeric system values that affect performance"
+    parameters: []
+    statement: |
+      SELECT system_value_name, system_value, text_description
+        FROM qsys2.system_value_info
+      WHERE system_value_name IN ('QMCHPOOL',
+        'QBASPOOL', 'QMAXACTLVL', 'QPFRADJ', 'QACTJOB', 'QADLACTJ', 'QMAXJOB', 'QMAXSPLF',
+        'QDBFSTCCOL', 'QDBRCVYWT', 'QSRVDMP', 'QPRCFEAT', 'QTHDRSCAFN', 'QTHDRSCADJ', 'QQRYDEGREE',
+        'QRYTIMLMT', 'QTSEPOOL', 'QPRCMLTTSK', 'QMLTTHDACN')
+      order by system_value_name
+
+  collection_services:
+    source: ibmi-system
+    description: "Current configuration of Collection Services"
+    parameters: []
+    statement: |
+      SELECT * FROM QSYS2.COLLECTION_SERVICES_INFO
+
+  collection_categories:
+    source: ibmi-system
+    description: "Collection Services category settings and intervals"
+    parameters: []
+    statement: |
+      SELECT cs_category, cs_interval
+      FROM QSYS2.COLLECTION_SERVICES_INFO, 
+           LATERAL (SELECT * FROM JSON_TABLE(CATEGORY_LIST, 'lax $.category_list[*]' 
+           COLUMNS(cs_category CLOB(1K) CCSID 1208 PATH 'lax $."category"', 
+                   cs_interval CLOB(1K) CCSID 1208 PATH 'lax $."interval"'))) a
+
+  active_job_info:
+    source: ibmi-system
+    description: "Find the top 10 consumers of CPU in the QUSRWRK and QSYSWRK subsystems"
+    parameters:
+      - name: limit
+        type: integer
+        default: 10
+        description: "Number of top CPU consumers to return"
+    statement: |
+      SELECT CPU_TIME, A.* FROM 
+      TABLE(QSYS2.ACTIVE_JOB_INFO(SUBSYSTEM_LIST_FILTER => 'QUSRWRK,QSYSWRK')) A 
+      ORDER BY CPU_TIME DESC 
+      FETCH FIRST :limit ROWS ONLY
+
+  # execute_sql:
+  #   source: ibmi-system
+  #   description: "Execute arbitrary SQL statements against the IBM i database for data analysis and troubleshooting"
+  #   readOnlyHint: true
+  #   parameters:
+  #     - name: sql
+  #       type: string
+  #       description: "The SQL statement to execute"
+  #   statement: |
+  #     :sql
+  #   security:
+  #     readOnly: true
+  #     maxQueryLength: 15000
+  #     forbiddenKeywords: ["TRUNCATE", "FORMAT", "DELETE", "UPDATE", "DROP"]
+
+  # === from ptf_tools.yaml ===
+  check_ptf_currency:
+    source: ibmi-system
+    description: "Check PTF group currency status for the current system release. Shows which PTF groups are current, outdated, or have updates available."
+    statement: |
+      WITH iLevel(iVersion, iRelease) AS (
+        SELECT OS_VERSION, OS_RELEASE 
+        FROM SYSIBMADM.ENV_SYS_INFO
+      )
+      SELECT P.PTF_GROUP_CURRENCY,
+             P.PTF_GROUP_ID,
+             P.PTF_GROUP_TITLE,
+             P.PTF_GROUP_LEVEL_INSTALLED,
+             P.PTF_GROUP_LEVEL_AVAILABLE,
+             P.LAST_UPDATED_BY_IBM,
+             P.PTF_GROUP_RELEASE,
+             P.PTF_GROUP_STATUS_ON_SYSTEM,
+             (P.PTF_GROUP_LEVEL_AVAILABLE - P.PTF_GROUP_LEVEL_INSTALLED) AS LEVELS_BEHIND
+      FROM iLevel, SYSTOOLS.GROUP_PTF_CURRENCY P
+      WHERE PTF_GROUP_RELEASE = 'R' CONCAT iVersion CONCAT iRelease CONCAT '0'
+        AND (:currency_filter = '*ALL' OR P.PTF_GROUP_CURRENCY LIKE '%' CONCAT :currency_filter CONCAT '%')
+      ORDER BY PTF_GROUP_LEVEL_AVAILABLE - PTF_GROUP_LEVEL_INSTALLED DESC
+      FETCH FIRST 100 ROWS ONLY
+    parameters:
+      - name: currency_filter
+        type: string
+        description: "Filter by currency status (e.g., 'UPDATE AVAILABLE', 'CURRENT', '*ALL')"
+        default: "*ALL"
+    security:
+      readOnly: true
+    annotations:
+      readOnlyHint: true
+      idempotentHint: true
+      domain: "system"
+      category: "ptf-management"
+
+  list_outdated_ptf_groups:
+    source: ibmi-system
+    description: "List only PTF groups that have updates available, showing how many levels behind each group is."
+    statement: |
+      WITH iLevel(iVersion, iRelease) AS (
+        SELECT OS_VERSION, OS_RELEASE 
+        FROM SYSIBMADM.ENV_SYS_INFO
+      )
+      SELECT P.PTF_GROUP_ID,
+             P.PTF_GROUP_TITLE,
+             P.PTF_GROUP_LEVEL_INSTALLED,
+             P.PTF_GROUP_LEVEL_AVAILABLE,
+             (P.PTF_GROUP_LEVEL_AVAILABLE - P.PTF_GROUP_LEVEL_INSTALLED) AS LEVELS_BEHIND,
+             P.LAST_UPDATED_BY_IBM,
+             P.PTF_GROUP_STATUS_ON_SYSTEM
+      FROM iLevel, SYSTOOLS.GROUP_PTF_CURRENCY P
+      WHERE PTF_GROUP_RELEASE = 'R' CONCAT iVersion CONCAT iRelease CONCAT '0'
+        AND P.PTF_GROUP_CURRENCY = 'UPDATE AVAILABLE'
+        AND (P.PTF_GROUP_LEVEL_AVAILABLE - P.PTF_GROUP_LEVEL_INSTALLED) >= :min_levels_behind
+      ORDER BY PTF_GROUP_LEVEL_AVAILABLE - PTF_GROUP_LEVEL_INSTALLED DESC
+      FETCH FIRST 50 ROWS ONLY
+    parameters:
+      - name: min_levels_behind
+        type: integer
+        description: "Minimum number of levels behind to include in results (1-100)"
+        default: 1
+    security:
+      readOnly: true
+    annotations:
+      readOnlyHint: true
+      idempotentHint: true
+      domain: "system"
+      category: "ptf-management"
+
+  get_ptf_group_details:
+    source: ibmi-system
+    description: "Get detailed information about a specific PTF group, including all installed levels and their status."
+    statement: |
+      SELECT PTF_GROUP_NAME,
+             PTF_GROUP_DESCRIPTION,
+             PTF_GROUP_LEVEL,
+             PTF_GROUP_TARGET_RELEASE,
+             PTF_GROUP_STATUS,
+             COLLECTED_TIME
+      FROM QSYS2.GROUP_PTF_INFO
+      WHERE PTF_GROUP_NAME LIKE :ptf_group_name CONCAT '%'
+      ORDER BY PTF_GROUP_LEVEL DESC
+      FETCH FIRST 20 ROWS ONLY
+    parameters:
+      - name: ptf_group_name
+        type: string
+        description: "PTF group name or prefix (e.g., 'SF99730', 'SF997'), 2-10 characters"
+    security:
+      readOnly: true
+    annotations:
+      readOnlyHint: true
+      idempotentHint: true
+      domain: "system"
+      category: "ptf-management"
+
+  list_installed_ptf_groups:
+    source: ibmi-system
+    description: "List all PTF groups currently installed on the system with optional filtering by status and release."
+    statement: |
+      SELECT PTF_GROUP_NAME,
+             PTF_GROUP_DESCRIPTION,
+             PTF_GROUP_LEVEL,
+             PTF_GROUP_TARGET_RELEASE,
+             PTF_GROUP_STATUS
+      FROM QSYS2.GROUP_PTF_INFO
+      WHERE (:status_filter = '*ALL' OR PTF_GROUP_STATUS = :status_filter)
+        AND (:release_filter = '*ALL' OR PTF_GROUP_TARGET_RELEASE LIKE :release_filter CONCAT '%')
+      ORDER BY PTF_GROUP_NAME, PTF_GROUP_LEVEL DESC
+      FETCH FIRST 100 ROWS ONLY
+    parameters:
+      - name: status_filter
+        type: string
+        description: "Filter by status: 'INSTALLED', 'APPLY AT NEXT IPL', or '*ALL'"
+        default: "*ALL"
+      - name: release_filter
+        type: string
+        description: "Filter by release (e.g., 'R740', 'R750') or '*ALL'"
+        default: "*ALL"
+    security:
+      readOnly: true
+    annotations:
+      readOnlyHint: true
+      idempotentHint: true
+      domain: "system"
+      category: "ptf-management"
+
+  summarize_ptf_status:
+    source: ibmi-system
+    description: "Get a high-level summary of PTF currency status including counts of current, outdated, and unavailable groups."
+    statement: |
+      WITH iLevel(iVersion, iRelease) AS (
+        SELECT OS_VERSION, OS_RELEASE 
+        FROM SYSIBMADM.ENV_SYS_INFO
+      )
+      SELECT 
+        COUNT(*) AS TOTAL_PTF_GROUPS,
+        SUM(CASE WHEN P.PTF_GROUP_CURRENCY LIKE '%CURRENT%' THEN 1 ELSE 0 END) AS CURRENT_GROUPS,
+        SUM(CASE WHEN P.PTF_GROUP_CURRENCY = 'UPDATE AVAILABLE' THEN 1 ELSE 0 END) AS UPDATES_AVAILABLE,
+        SUM(CASE WHEN P.PTF_GROUP_CURRENCY LIKE '%NOT AVAILABLE%' THEN 1 ELSE 0 END) AS INFO_NOT_AVAILABLE,
+        AVG(P.PTF_GROUP_LEVEL_AVAILABLE - P.PTF_GROUP_LEVEL_INSTALLED) AS AVG_LEVELS_BEHIND,
+        MAX(P.PTF_GROUP_LEVEL_AVAILABLE - P.PTF_GROUP_LEVEL_INSTALLED) AS MAX_LEVELS_BEHIND
+      FROM iLevel, SYSTOOLS.GROUP_PTF_CURRENCY P
+      WHERE PTF_GROUP_RELEASE = 'R' CONCAT iVersion CONCAT iRelease CONCAT '0'
+    security:
+      readOnly: true
+    annotations:
+      readOnlyHint: true
+      idempotentHint: true
+      domain: "system"
+      category: "ptf-management"
+
+  find_critical_ptf_updates:
+    source: ibmi-system
+    description: "Identify PTF groups that are significantly behind (critical updates needed), sorted by severity."
+    statement: |
+      WITH iLevel(iVersion, iRelease) AS (
+        SELECT OS_VERSION, OS_RELEASE 
+        FROM SYSIBMADM.ENV_SYS_INFO
+      )
+      SELECT P.PTF_GROUP_ID,
+             P.PTF_GROUP_TITLE,
+             P.PTF_GROUP_LEVEL_INSTALLED,
+             P.PTF_GROUP_LEVEL_AVAILABLE,
+             (P.PTF_GROUP_LEVEL_AVAILABLE - P.PTF_GROUP_LEVEL_INSTALLED) AS LEVELS_BEHIND,
+             P.LAST_UPDATED_BY_IBM,
+             P.PTF_GROUP_STATUS_ON_SYSTEM,
+             P.PTF_GROUP_CURRENCY
+      FROM iLevel, SYSTOOLS.GROUP_PTF_CURRENCY P
+      WHERE PTF_GROUP_RELEASE = 'R' CONCAT iVersion CONCAT iRelease CONCAT '0'
+        AND (P.PTF_GROUP_LEVEL_AVAILABLE - P.PTF_GROUP_LEVEL_INSTALLED) >= :critical_threshold
+      ORDER BY (P.PTF_GROUP_LEVEL_AVAILABLE - P.PTF_GROUP_LEVEL_INSTALLED) DESC
+      FETCH FIRST 25 ROWS ONLY
+    parameters:
+      - name: critical_threshold
+        type: integer
+        description: "Number of levels behind to consider critical (1-100, default: 5)"
+        default: 5
+    security:
+      readOnly: true
+    annotations:
+      readOnlyHint: true
+      idempotentHint: true
+      domain: "system"
+      category: "ptf-management"
+
+  # === from security-ops.yaml ===
+  users_with_limited_capabilities:
+    source: ibmi-system
+    description: "Identify which users are configured with limited capabilities"
+    statement: |
+      SELECT *
+        FROM qsys2.user_info_basic
+        WHERE limit_capabilities = '*YES'
+    security:
+      readOnly: true
+    annotations:
+      readOnlyHint: true
+      idempotentHint: true
+      domain: "security"
+      category: "user-management"
+
+  commands_allowed_for_users_with_limited_capabilities:
+    source: ibmi-system
+    description: "Identify which commands on the IBM i can be executed by the `users` with limited capabilities"
+    parameters: []
+    statement: |
+      SELECT *
+        FROM qsys2.command_info
+        WHERE allow_limited_user = 'YES'
+    security:
+      readOnly: true
+    annotations:
+      readOnlyHint: true
+      idempotentHint: true
+      domain: "security"
+      category: "user-management"
+
+  repopulate_special_authority_detail:
+    source: ibmi-system
+    description: "Repopulate the special authority detail in the SYSTOOLS MQT"
+    statement: |
+      REFRESH TABLE systools.special_authority_data_mart
+    security:
+      readOnly: false
+    annotations:
+      readOnlyHint: false
+      idempotentHint: true
+      domain: "security"
+      category: "audit"
+
+  list_users_who_can_see_all_db2_data:
+    source: ibmi-system
+    description: "Identify which users have *ALLOBJ or *SAVSYS special authorities, can see any Db2 for i data"
+    statement: |
+      SELECT *
+        FROM systools.special_authority_data_mart
+        WHERE special_authority IN ('*ALLOBJ', '*SAVSYS')
+        ORDER BY user_name
+    security:
+      readOnly: true
+    annotations:
+      readOnlyHint: true
+      idempotentHint: true
+      domain: "security"
+      category: "vulnerability-assessment"
+
+  list_db_files_readable_by_any_user:
+    source: ibmi-system
+    description: "List database files that any user can read"
+    statement: |
+      WITH libs (lib_name) AS (
+        SELECT object_name
+          FROM qsys2.object_privileges
+          WHERE system_object_schema = 'QSYS'
+            AND object_type = '*LIB'
+            AND user_name = '*PUBLIC'
+            AND data_execute = 'YES'
+      )
+      SELECT *
+        FROM libs, qsys2.object_privileges
+        WHERE system_object_schema = lib_name
+          AND object_type = '*FILE'
+          AND user_name = '*PUBLIC'
+          AND data_read = 'YES'
+          AND object_operational = 'YES'
+          AND ('PF' = (SELECT objattribute
+                         FROM TABLE (qsys2.object_statistics(lib_name, '*FILE', object_name))))
+    security:
+      readOnly: true
+    annotations:
+      readOnlyHint: true
+      idempotentHint: true
+      domain: "security"
+      category: "vulnerability-assessment"
+
+  list_db_files_writable_by_any_user:
+    source: ibmi-system
+    description: "List files where any user can insert rows"
+    statement: |
+      WITH libs (lib_name) AS (
+        SELECT object_name
+          FROM qsys2.object_privileges
+          WHERE system_object_schema = 'QSYS'
+            AND object_type = '*LIB'
+            AND user_name = '*PUBLIC'
+            AND data_execute = 'YES'
+      )
+      SELECT *
+        FROM libs, qsys2.object_privileges
+        WHERE system_object_schema = lib_name
+          AND object_type = '*FILE'
+          AND user_name = '*PUBLIC'
+          AND data_add = 'YES'
+          AND ('PF' = (SELECT objattribute
+                         FROM TABLE (qsys2.object_statistics(lib_name, '*FILE', object_name))))
+    security:
+      readOnly: true
+    annotations:
+      readOnlyHint: true
+      idempotentHint: true
+      domain: "security"
+      category: "vulnerability-assessment"
+
+  list_db_files_deletable_by_any_user:
+    source: ibmi-system
+    description: "List all files where any user can delete rows"
+    statement: |
+      WITH libs (lib_name) AS (
+        SELECT object_name
+          FROM qsys2.object_privileges
+          WHERE system_object_schema = 'QSYS'
+            AND object_type = '*LIB'
+            AND user_name = '*PUBLIC'
+            AND data_execute = 'YES'
+      )
+      SELECT *
+        FROM libs, qsys2.object_privileges
+        WHERE system_object_schema = lib_name
+          AND object_type = '*FILE'
+          AND user_name = '*PUBLIC'
+          AND data_delete = 'YES'
+          AND ('PF' = (SELECT objattribute
+                         FROM TABLE (qsys2.object_statistics(lib_name, '*FILE', object_name))))
+    security:
+      readOnly: true
+    annotations:
+      readOnlyHint: true
+      idempotentHint: true
+      domain: "security"
+      category: "vulnerability-assessment"
+
+  list_db_files_updatable_by_any_user:
+    source: ibmi-system
+    description: "List all files where any user can update rows"
+    statement: |
+      WITH libs (lib_name) AS (
+        SELECT object_name
+          FROM qsys2.object_privileges
+          WHERE system_object_schema = 'QSYS'
+            AND object_type = '*LIB'
+            AND user_name = '*PUBLIC'
+            AND data_execute = 'YES'
+      )
+      SELECT *
+        FROM libs, qsys2.object_privileges
+        WHERE system_object_schema = lib_name
+          AND object_type = '*FILE'
+          AND user_name = '*PUBLIC'
+          AND data_update = 'YES'
+          AND ('PF' = (SELECT objattribute
+                         FROM TABLE (qsys2.object_statistics(lib_name, '*FILE', object_name))))
+    security:
+      readOnly: true
+    annotations:
+      readOnlyHint: true
+      idempotentHint: true
+      domain: "security"
+      category: "vulnerability-assessment"
+
+  list_db_files_exposed_to_trigger_attack:
+    source: ibmi-system
+    description: "List files exposed to a trigger attack where any user can read and alter or manage the file"
+    statement: |
+      WITH libs (lib_name) AS (
+        SELECT object_name
+          FROM qsys2.object_privileges
+          WHERE system_object_schema = 'QSYS'
+            AND object_type = '*LIB'
+            AND user_name = '*PUBLIC'
+            AND data_execute = 'YES'
+      )
+      SELECT *
+        FROM libs, qsys2.object_privileges
+        WHERE system_object_schema = lib_name
+          AND object_type = '*FILE'
+          AND user_name = '*PUBLIC'
+          AND data_read = 'YES'
+          AND object_operational = 'YES'
+          AND (object_alter = 'YES' OR object_management = 'YES')
+          AND ('PF' = (SELECT objattribute
+                         FROM TABLE (qsys2.object_statistics(lib_name, '*FILE', object_name))))
+    security:
+      readOnly: true
+    annotations:
+      readOnlyHint: true
+      idempotentHint: true
+      domain: "security"
+      category: "vulnerability-assessment"
+
+  list_user_profiles_vulnerable_to_impersonation:
+    source: ibmi-system
+    description: "Identify user profiles vulnerable to impersonation attack where *PUBLIC authority is not set to *EXCLUDE"
+    statement: |
+      SELECT object_name AS user_name, object_authority, owner
+        FROM qsys2.object_privileges
+        WHERE system_object_schema = 'QSYS'
+          AND object_type = '*USRPRF'
+          AND object_name NOT IN ('QDBSHR', 'QDBSHRDO', 'QDOC', 'QTMPLPD')
+          AND user_name = '*PUBLIC'
+          AND object_authority <> '*EXCLUDE'
+    security:
+      readOnly: true
+    annotations:
+      readOnlyHint: true
+      idempotentHint: true
+      domain: "security"
+      category: "vulnerability-assessment"
+
+  list_public_authority_on_attack_vector_commands:
+    source: ibmi-system
+    description: "Identify dangerous commands that *PUBLIC users can execute, enabling potential privilege escalation or data exfiltration"
+    statement: |
+      SELECT object_name, object_type, object_authority
+        FROM qsys2.object_privileges
+        WHERE system_object_schema = 'QSYS'
+          AND object_type = '*CMD'
+          AND object_name IN ('ADDPFTRG', 'CRTPGM', 'CRTSRVPGM', 'SAVOBJ', 'SAVLIB', 'CRTDUPOBJ', 'CPYF')
+          AND user_name = '*PUBLIC'
+    security:
+      readOnly: true
+    annotations:
+      readOnlyHint: true
+      idempotentHint: true
+      domain: "security"
+      category: "vulnerability-assessment"
+
+  check_command_audit_settings:
+    source: ibmi-system
+    description: "Check object audit settings for specified IBM i commands in QSYS library to verify if security logging is enabled"
+    parameters:
+      - name: command_names
+        type: array
+        description: "Array of command names to check audit settings for (e.g., ['ADDPFTRG', 'CRTPGM', 'SAVOBJ']). Common attack vector commands include ADDPFTRG, CRTPGM, CRTSRVPGM, SAVOBJ, SAVLIB, CRTDUPOBJ, CPYF"
+        required: true
+    statement: |
+      SELECT objname, object_audit
+        FROM TABLE (qsys2.object_statistics('QSYS', '*CMD'))
+        WHERE objname IN (:command_names)
+    security:
+      readOnly: true
+    annotations:
+      readOnlyHint: true
+      idempotentHint: true
+      domain: "security"
+      category: "audit"
+
+  generate_impersonation_lockdown_commands:
+    source: ibmi-system
+    description: "Generate GRTOBJAUT commands to lock down user profiles vulnerable to impersonation by setting *PUBLIC authority to *EXCLUDE. Returns CL commands as strings without executing them"
+    statement: |
+      SELECT 'QSYS/GRTOBJAUT OBJ(' CONCAT object_name CONCAT ') OBJTYPE(*USRPRF) USER(*PUBLIC) AUT(*EXCLUDE)' AS lockdown_commands
+        FROM qsys2.object_privileges
+        WHERE system_object_schema = 'QSYS'
+          AND object_type = '*USRPRF'
+          AND user_name = '*PUBLIC'
+          AND object_name NOT IN ('QDBSHR', 'QDBSHRDO', 'QDOC', 'QTMPLPD')
+          AND object_authority <> '*EXCLUDE'
+    security:
+      readOnly: true
+    annotations:
+      readOnlyHint: true
+      idempotentHint: true
+      domain: "security"
+      category: "remediation"
+
+  execute_impersonation_lockdown:
+    source: ibmi-system
+    description: "WRITE OPERATION: Execute GRTOBJAUT commands to lock down user profiles vulnerable to impersonation by setting *PUBLIC authority to *EXCLUDE. This modifies system security settings. Use with caution"
+    statement: |
+      SELECT qsys2.qcmdexc('QSYS/GRTOBJAUT OBJ(' CONCAT object_name CONCAT ') OBJTYPE(*USRPRF) USER(*PUBLIC) AUT(*EXCLUDE)') AS lockdown_result
+        FROM qsys2.object_privileges
+        WHERE system_object_schema = 'QSYS'
+          AND object_type = '*USRPRF'
+          AND user_name = '*PUBLIC'
+          AND object_name NOT IN ('QDBSHR', 'QDBSHRDO', 'QDOC', 'QTMPLPD')
+          AND object_authority <> '*EXCLUDE'
+    security:
+      readOnly: false
+    annotations:
+      readOnlyHint: false
+      idempotentHint: false
+      destructiveHint: true
+      openWorldHint: true
+      domain: "security"
+      category: "remediation"
+
+  list_files_exposed_to_rename_attack:
+    source: ibmi-system
+    description: "Identify database files vulnerable to rename attacks where *PUBLIC has DATA_EXECUTE & DATA_UPDATE on library plus OBJECT_MANAGEMENT & OBJECT_OPERATIONAL on file"
+    statement: |
+      WITH libs (lib_name) AS (
+        SELECT object_name
+          FROM qsys2.object_privileges
+          WHERE system_object_schema = 'QSYS'
+            AND object_type = '*LIB'
+            AND authorization_name = '*PUBLIC'
+            AND data_execute = 'YES'
+            AND data_update = 'YES'
+      )
+      SELECT priv.*
+        FROM libs, LATERAL (
+               SELECT *
+                 FROM qsys2.object_privileges
+                 WHERE system_object_schema = lib_name
+                   AND object_type = '*FILE'
+                   AND authorization_name = '*PUBLIC'
+                   AND object_management = 'YES'
+                   AND object_operational = 'YES'
+                   AND ('PF' = (SELECT objattribute
+                                  FROM TABLE (qsys2.object_statistics(lib_name, '*FILE', object_name))))
+             ) priv
+    security:
+      readOnly: true
+    annotations:
+      readOnlyHint: true
+      idempotentHint: true
+      domain: "security"
+      category: "vulnerability-assessment"
+
+
+  list_system_libraries_allowing_table_creation:
+    source: ibmi-system
+    description: "Identify libraries in system or product portion of library list where *PUBLIC can create tables, exposing system to library list attacks"
+    statement: |
+      SELECT lib.*, priv.*
+        FROM qsys2.library_list_info lib, LATERAL (
+               SELECT *
+                 FROM qsys2.object_privileges
+                 WHERE system_object_schema = 'QSYS'
+                   AND system_object_name = lib.system_schema_name
+                   AND object_type = '*LIB'
+             ) priv
+        WHERE lib.type NOT IN ('USER')
+          AND authorization_name = '*PUBLIC'
+          AND object_operational = 'YES'
+          AND data_read = 'YES'
+          AND data_add = 'YES'
+          AND data_execute = 'YES'
+    security:
+      readOnly: true
+    annotations:
+      readOnlyHint: true
+      idempotentHint: true
+      domain: "security"
+      category: "vulnerability-assessment"
+
+  list_adopted_authority_programs_with_public_access:
+    source: ibmi-system
+    description: "Identify programs using adopted authority (USRPRF=*OWNER) that are not secured with *PUBLIC *EXCLUDE or *AUTL, enabling privilege escalation attacks"
+    statement: |
+      WITH adopt_pgms(lib_name, pgm_name, obj_type) AS (
+        SELECT program_library, program_name, object_type
+          FROM qsys2.program_info
+          WHERE program_library NOT LIKE 'Q%'
+            AND program_library NOT LIKE 'SYS%'
+            AND user_profile = '*OWNER'
+      )
+      SELECT lib_name, pgm_name, obj_type, object_authority AS public_authority
+        FROM adopt_pgms, LATERAL (
+               SELECT *
+                 FROM TABLE (qsys2.object_privileges(
+                        system_object_schema => lib_name,
+                        system_object_name => pgm_name,
+                        object_type => obj_type))
+             )
+        WHERE authorization_user = '*PUBLIC'
+          AND object_authority NOT IN ('*EXCLUDE', '*AUTL')
+        ORDER BY lib_name, pgm_name, obj_type
+    security:
+      readOnly: true
+    annotations:
+      readOnlyHint: true
+      idempotentHint: true
+      domain: "security"
+      category: "vulnerability-assessment"
+
+  # === from sys-admin.yaml ===
+  describe_object:
+    enabled: false
+    source: ibmi-system
+    description: Describe an SQL object by generating DDL definition
+    statement: |-
+      CALL QSYS2.GENERATE_SQL(
+          DATABASE_OBJECT_NAME => :name,
+          DATABASE_OBJECT_LIBRARY_NAME => :library,
+          DATABASE_OBJECT_TYPE => :type,
+          CREATE_OR_REPLACE_OPTION => '1',
+          PRIVILEGES_OPTION => '0',
+          STATEMENT_FORMATTING_OPTION => '0',
+          SOURCE_STREAM_FILE_END_OF_LINE => 'LF',
+          SOURCE_STREAM_FILE_CCSID => 1208
+      )
+    parameters:
+      - name: name
+        type: string
+        description: The name of the object
+        required: true
+      - name: library
+        type: string
+        description: The name of the library where the object is defined
+        required: true
+        default: QSYS2
+      - name: type
+        type: string
+        default: TABLE
+        description: |-
+          A character or graphic string expression that identifies the type of the database object or object attribute for which DDL is generated. 
+          You can use these special values for the object type:
+          ALIAS
+              The object is an SQL alias.
+          CONSTRAINT
+              The object attribute is a constraint.
+          FUNCTION
+              The object is an SQL function.
+          INDEX
+              The object is an SQL index.
+          MASK
+              The object is an SQL column mask.
+          PERMISSION
+              The object is an SQL row permission.
+          PROCEDURE
+              The object is an SQL procedure.
+          SCHEMA
+              The object is an SQL schema.
+          SEQUENCE
+              The object is an SQL sequence.
+          TABLE
+              The object is an SQL table or physical file.
+          TRIGGER
+              The object attribute is a trigger.
+          TYPE
+              The object is an SQL type.
+          VARIABLE
+              The object is an SQL global variable.
+          VIEW
+              The object is an SQL view or logical file.
+          XSR
+              The object is an XML schema repository object.
+
+    domain: sysadmin
+  list_service_categories:
+    source: ibmi-system
+    description: List all service categories with counts of services in each.
+    statement: |-
+      SELECT service_category,
+             COUNT(*) AS service_count
+      FROM qsys2.services_info
+      GROUP BY service_category
+      ORDER BY service_count DESC, service_category
+    domain: sysadmin
+    category: discovery
+    metadata:
+      title: Service categories and counts
+
+  list_services_by_category:
+    source: ibmi-system
+    description: Browse services for a specific category with key details.
+    statement: |-
+      SELECT service_schema_name,
+             service_name,
+             sql_object_type,
+             object_type,
+             system_object_name,
+             earliest_possible_release,
+             latest_db2_group_level,
+             initial_db2_group_level
+      FROM qsys2.services_info
+      WHERE service_category = :category
+      ORDER BY service_schema_name, service_name
+    parameters:
+      - name: category
+        type: string
+        description: Exact value of SERVICE_CATEGORY to filter by.
+        required: true
+    domain: sysadmin
+    category: browse
+    metadata:
+      title: Services by category
+
+  search_services_by_name:
+    source: ibmi-system
+    description: Case-insensitive search of services by name (contains match).
+    statement: |-
+      SELECT service_category,
+             service_schema_name,
+             service_name,
+             sql_object_type,
+             earliest_possible_release
+      FROM qsys2.services_info
+      WHERE UPPER(service_name) LIKE UPPER('%' CONCAT :name_contains CONCAT '%')
+      ORDER BY service_category, service_schema_name, service_name
+    parameters:
+      - name: name_contains
+        type: string
+        description: Substring to search for in SERVICE_NAME.
+        required: true
+        minLength: 2
+    domain: sysadmin
+    category: search
+    metadata:
+      title: Search services by name
+
+  list_services_by_schema:
+    source: ibmi-system
+    description: List services provided by a specific schema (e.g., QSYS2, SYSTOOLS).
+    statement: |-
+      SELECT service_category,
+             service_name,
+             sql_object_type,
+             earliest_possible_release
+      FROM qsys2.services_info
+      WHERE service_schema_name = UPPER(:schema_name)
+      ORDER BY service_category, service_name
+    parameters:
+      - name: schema_name
+        type: string
+        description: Schema name (library), e.g., QSYS2 or SYSTOOLS.
+        required: true
+        minLength: 1
+    domain: sysadmin
+    category: browse
+    metadata:
+      title: Services by schema
+
+  list_services_by_sql_object_type:
+    source: ibmi-system
+    description: List services by SQL object type (VIEW, PROCEDURE, SCALAR FUNCTION, etc.).
+    statement: |-
+      SELECT service_category,
+             service_schema_name,
+             service_name,
+             sql_object_type,
+             earliest_possible_release
+      FROM qsys2.services_info
+      WHERE sql_object_type = :sql_object_type
+      ORDER BY service_category, service_schema_name, service_name
+    parameters:
+      - name: sql_object_type
+        type: string
+        description: SQL object type to filter by.
+        required: true
+        enum: ["VIEW", "PROCEDURE", "SCALAR FUNCTION", "TABLE FUNCTION", "TABLE"]
+    domain: sysadmin
+    category: browse
+    metadata:
+      title: Services by SQL object type
+
+  get_service_example:
+    source: ibmi-system
+    description: Retrieve the example SQL/usage snippet for a specific service.
+    statement: |-
+      SELECT service_schema_name,
+             service_name,
+             example
+      FROM qsys2.services_info
+      WHERE service_schema_name = UPPER(:schema_name)
+        AND service_name = UPPER(:service_name)
+    parameters:
+      - name: schema_name
+        type: string
+        description: Schema name containing the service (e.g., QSYS2).
+        required: true
+      - name: service_name
+        type: string
+        description: Exact SERVICE_NAME (case-insensitive match used).
+        required: true
+    domain: sysadmin
+    category: reference
+    metadata:
+      title: Get service example
+
+  where_is_service:
+    source: ibmi-system
+    description: Locate a service by name and return its schema and object metadata.
+    statement: |-
+      SELECT service_category,
+             service_schema_name,
+             service_name,
+             sql_object_type,
+             object_type,
+             system_object_name,
+             earliest_possible_release
+      FROM qsys2.services_info
+      WHERE UPPER(service_name) = UPPER(:service_name)
+      ORDER BY service_schema_name
+    parameters:
+      - name: service_name
+        type: string
+        description: Exact SERVICE_NAME to locate.
+        required: true
+    domain: sysadmin
+    category: search
+    metadata:
+      title: Where is this service?
+
+  search_examples_for_keyword:
+    source: ibmi-system
+    description: Search the EXAMPLE text for a keyword or phrase (case-insensitive).
+    statement: |-
+      SELECT service_category,
+             service_schema_name,
+             service_name,
+             SUBSTR(example, 1, 300) AS example_snippet
+      FROM qsys2.services_info
+      WHERE example IS NOT NULL
+        AND UPPER(example) LIKE UPPER('%' CONCAT :keyword CONCAT '%')
+      ORDER BY service_category, service_schema_name, service_name
+    parameters:
+      - name: keyword
+        type: string
+        description: Keyword or phrase to search for within EXAMPLE text.
+        required: true
+        minLength: 2
+    domain: sysadmin
+    category: search
+    metadata:
+      title: Search examples for keyword
+
+  count_services_by_schema:
+    source: ibmi-system
+    description: Count services by providing schema.
+    statement: |-
+      SELECT service_schema_name,
+             COUNT(*) AS service_count
+      FROM qsys2.services_info
+      GROUP BY service_schema_name
+      ORDER BY service_count DESC, service_schema_name
+    domain: sysadmin
+    category: discovery
+    metadata:
+      title: Service counts by schema
+
+  count_services_by_sql_object_type:
+    source: ibmi-system
+    description: Summarize services by SQL object type.
+    statement: |-
+      SELECT sql_object_type,
+             COUNT(*) AS service_count
+      FROM qsys2.services_info
+      GROUP BY sql_object_type
+      ORDER BY service_count DESC, sql_object_type
+    domain: sysadmin
+    category: discovery
+    metadata:
+      title: Service counts by SQL object type
+
+  list_categories_for_schema:
+    source: ibmi-system
+    description: Show which categories exist within a given schema.
+    statement: |-
+      SELECT service_schema_name,
+             service_category,
+             COUNT(*) AS service_count
+      FROM qsys2.services_info
+      WHERE service_schema_name = UPPER(:schema_name)
+      GROUP BY service_schema_name, service_category
+      ORDER BY service_count DESC, service_category
+    parameters:
+      - name: schema_name
+        type: string
+        description: Schema name to summarize (e.g., QSYS2).
+        required: true
+    domain: sysadmin
+    category: discovery
+    metadata:
+      title: Categories within a schema
+
+  # === from text2sql.yaml ===
+  list_tables_in_schema:
+    source: ibmi-system
+    description: "List tables, views, and physical files in a specific schema with metadata including row counts. Essential for understanding schema structure."
+    statement: |
+      SELECT T.TABLE_SCHEMA,
+             T.TABLE_NAME,
+             T.TABLE_TYPE,
+             T.TABLE_TEXT,
+             COALESCE(S.NUMBER_ROWS, 0) AS NUMBER_ROWS,
+             T.COLUMN_COUNT
+      FROM QSYS2.SYSTABLES T
+      LEFT JOIN QSYS2.SYSTABLESTAT S
+        ON T.TABLE_SCHEMA = S.TABLE_SCHEMA
+        AND T.TABLE_NAME = S.TABLE_NAME
+      WHERE T.TABLE_SCHEMA = UPPER(:schema_name)
+        AND T.TABLE_TYPE IN ('T', 'V', 'P')
+        AND (:table_filter = '*ALL' OR T.TABLE_NAME LIKE UPPER(:table_filter))
+      ORDER BY T.TABLE_TYPE, T.TABLE_NAME
+      FETCH FIRST 200 ROWS ONLY
+    parameters:
+      - name: schema_name
+        type: string
+        description: "Schema name to list tables from (e.g., 'QIWS', 'SAMPLE', 'MYLIB')"
+        required: true
+      - name: table_filter
+        type: string
+        description: "Filter tables by name pattern (e.g., 'CUST%', 'ORD%'). Use '*ALL' for all tables."
+        default: "*ALL"
+    security:
+      readOnly: true
+    annotations:
+      readOnlyHint: true
+      idempotentHint: true
+      domain: "development"
+      category: "text2sql"
+
+  # Query Validation
+  validate_query:
+    source: ibmi-system
+    description: "Validate SQL query syntax using IBM i's native SQL parser. Returns statement type and parsing results without executing the query. If no results are returned, the statement is invalid"
+    statement: |
+      SELECT *
+      FROM TABLE(QSYS2.PARSE_STATEMENT(
+        SQL_STATEMENT => :sql_statement,
+        NAMING => '*SQL',
+        DECIMAL_POINT => '*PERIOD',
+        SQL_STRING_DELIMITER => '*APOSTSQL'
+      )) AS P
+    parameters:
+      - name: sql_statement
+        type: string
+        description: "SQL statement to validate (e.g., 'SELECT * FROM QIWS.QCUSTCDT')"
+        required: true
+        minLength: 5
+        maxLength: 10000
+    security:
+      readOnly: true
+    annotations:
+      readOnlyHint: true
+      idempotentHint: true
+      domain: "development"
+      category: "text2sql"
+
+  # Data Sampling
+  sample_rows:
+    source: ibmi-system
+    description: "Generate a sample query for a table. Returns the SQL statement to use with execute_sql to fetch sample data. YAML tools cannot dynamically query arbitrary tables, so use this to generate the query then execute it separately."
+    statement: |
+      SELECT
+        'SELECT * FROM ' || TRIM(T.TABLE_SCHEMA) || '.' || TRIM(T.TABLE_NAME) ||
+        ' FETCH FIRST ' || CAST(:sample_size AS VARCHAR(10)) || ' ROWS ONLY' AS SAMPLE_QUERY,
+        T.TABLE_SCHEMA,
+        T.TABLE_NAME,
+        COALESCE(S.NUMBER_ROWS, 0) AS TOTAL_ROWS
+      FROM QSYS2.SYSTABLES T
+      LEFT JOIN QSYS2.SYSTABLESTAT S
+        ON T.TABLE_SCHEMA = S.TABLE_SCHEMA
+        AND T.TABLE_NAME = S.TABLE_NAME
+      WHERE T.TABLE_SCHEMA = UPPER(:schema_name)
+        AND T.TABLE_NAME = UPPER(:table_name)
+        AND T.TABLE_TYPE IN ('T', 'V', 'P')
+      FETCH FIRST 1 ROWS ONLY
+    parameters:
+      - name: schema_name
+        type: string
+        description: "Schema name containing the table (e.g., 'QIWS', 'SAMPLE')"
+        required: true
+      - name: table_name
+        type: string
+        description: "Table name to sample (e.g., 'QCUSTCDT', 'EMPLOYEE')"
+        required: true
+      - name: sample_size
+        type: integer
+        description: "Number of rows to include in sample query (1-100)"
+        default: 10
+        min: 1
+        max: 100
+    security:
+      readOnly: true
+    annotations:
+      readOnlyHint: true
+      idempotentHint: true
+      domain: "development"
+      category: "text2sql"
+
+  # Enhanced Table Statistics
+  get_table_statistics:
+    source: ibmi-system
+    description: "Get comprehensive statistics for a table including row count, physical size, last used timestamp, and I/O metrics. Combines data from SYSTABLES, SYSTABLESTAT, and OBJECT_STATISTICS."
+    statement: |
+      SELECT
+        T.TABLE_SCHEMA,
+        T.TABLE_NAME,
+        COALESCE(S.NUMBER_ROWS, 0) AS NUMBER_ROWS,
+        COALESCE(O.OBJSIZE, 0) AS SIZE_BYTES,
+        COALESCE(O.OBJSIZE / 1024, 0) AS SIZE_KB,
+        O.LAST_USED_TIMESTAMP,
+        O.DAYS_USED_COUNT,
+        COALESCE(S.NUMBER_DELETED_ROWS, 0) AS DELETED_ROWS,
+        S.LAST_CHANGE_TIMESTAMP,
+        T.LAST_ALTERED_TIMESTAMP
+      FROM QSYS2.SYSTABLES T
+      LEFT JOIN QSYS2.SYSTABLESTAT S
+        ON T.TABLE_SCHEMA = S.TABLE_SCHEMA
+        AND T.TABLE_NAME = S.TABLE_NAME
+      LEFT JOIN TABLE(QSYS2.OBJECT_STATISTICS(
+        OBJECT_SCHEMA => UPPER(:schema_name),
+        OBJTYPELIST => '*FILE',
+        OBJECT_NAME => UPPER(:table_name)
+      )) O
+        ON T.TABLE_NAME = O.OBJNAME
+      WHERE T.TABLE_SCHEMA = UPPER(:schema_name)
+        AND T.TABLE_NAME = UPPER(:table_name)
+      FETCH FIRST 1 ROWS ONLY
+    parameters:
+      - name: schema_name
+        type: string
+        description: "Schema name containing the table"
+        required: true
+      - name: table_name
+        type: string
+        description: "Table name to get statistics for"
+        required: true
+    security:
+      readOnly: true
+    annotations:
+      readOnlyHint: true
+      idempotentHint: true
+      domain: "development"
+      category: "text2sql"
+
+toolsets:
+  employee_information:
+    title: "Employee Information"
+    description: "Tools for retrieving and analyzing employee data"
+    tools:
+      - get_employee_details
+      - find_employees_by_department
+      - find_employees_by_job
+      - search_employees
+
+  project_management:
+    title: "Project Management"
+    description: "Tools for managing project assignments and team members"
+    tools:
+      - get_employee_projects
+      - find_project_team_members
+
+  salary_analysis:
+    title: "Salary Analysis"
+    description: "Tools for analyzing salary data across departments"
+    tools:
+      - get_department_salary_stats
+      - calculate_employee_bonus
+
+# Made with Bob
+  library_list_configuration:
+    title: "Library List Configuration"
+    description: "Tools for retrieving and analyzing library list configuration"
+    tools:
+      - get_system_library_list_config
+      - get_user_library_list_config
+      - get_system_library_list_details
+      - get_complete_library_list
+
+  library_list_security:
+    title: "Library List Security"
+    description: "Tools for analyzing and identifying security vulnerabilities in the library list"
+    tools:
+      - check_chgsyslibl_security
+      - analyze_library_list_security
+      - find_vulnerable_libraries
+      - check_library_security
+
+  library_list_security_assessment:
+    title: "Library List Security Assessment"
+    description: "Comprehensive tools for assessing the security of the library list configuration"
+    tools:
+      - get_system_library_list_config
+      - get_user_library_list_config
+      - check_chgsyslibl_security
+      - find_vulnerable_libraries
+
+# Made with Bob
+  developer_tools:
+    tools:
+      - find_least_recently_used_objects
+      - find_stale_objects
+      - find_dependent_objects
+      - find_dependent_objects_by_type
+  performance:
+    tools:
+      - system_status
+      - system_activity
+      - remote_connections
+      - memory_pools
+      - temp_storage_buckets
+      - unnamed_temp_storage
+      - http_server
+      - system_values
+      - collection_services
+      - collection_categories
+      - active_job_info
+      # - execute_sql
+  ptf_management:
+    title: "PTF Management Tools"
+    description: "Tools for monitoring and managing Program Temporary Fixes (PTFs) and PTF groups on IBM i systems"
+    tools:
+      - check_ptf_currency
+      - list_outdated_ptf_groups
+      - get_ptf_group_details
+      - list_installed_ptf_groups
+      - summarize_ptf_status
+      - find_critical_ptf_updates
+
+# Made with Bob
+  security_vulnerability_assessment:
+    title: "Security Vulnerability Assessment"
+    description: "Comprehensive tools for identifying security vulnerabilities, assessing user privileges, file permissions, and potential attack vectors"
+    tools:
+      - users_with_limited_capabilities
+      - commands_allowed_for_users_with_limited_capabilities
+      - list_users_who_can_see_all_db2_data
+      - list_db_files_readable_by_any_user
+      - list_db_files_writable_by_any_user
+      - list_db_files_deletable_by_any_user
+      - list_db_files_updatable_by_any_user
+      - list_db_files_exposed_to_trigger_attack
+      - list_user_profiles_vulnerable_to_impersonation
+      - list_public_authority_on_attack_vector_commands
+      - list_files_exposed_to_rename_attack
+      - list_system_libraries_allowing_table_creation
+      - list_adopted_authority_programs_with_public_access
+
+  security_audit:
+    title: "Security Audit"
+    description: "Tools for auditing security configurations and maintaining security data"
+    tools:
+      - repopulate_special_authority_detail
+      - check_command_audit_settings
+
+  security_remediation:
+    title: "Security Remediation"
+    description: "Tools for generating and executing security remediation commands"
+    tools:
+      - generate_impersonation_lockdown_commands
+      - execute_impersonation_lockdown
+  sysadmin_discovery:
+    title: Sys Admin Discovery
+    description: High-level summaries and counts for services.
+    tools:
+      - list_service_categories
+      - count_services_by_schema
+      - count_services_by_sql_object_type
+      - list_categories_for_schema
+
+  sysadmin_browse:
+    title: Sys Admin Browse
+    description: Explore services by category, schema, and SQL object type; validate metadata.
+    tools:
+      - list_services_by_category
+      - list_services_by_schema
+      - list_services_by_sql_object_type
+
+  sysadmin_search:
+    title: Sys Admin Search
+    description: Search capabilities for service names and example usage.
+    tools:
+      - search_services_by_name
+      - where_is_service
+      - search_examples_for_keyword
+      - get_service_example
+  text2sql:
+    title: "Text-to-SQL Development Tools"
+    description: "Toolset for AI agents to discover schemas, validate queries, sample data, and execute SQL on IBM i. Supports the full text-to-SQL workflow."
+    tools:
+      - list_tables_in_schema
+      - validate_query
+      - sample_rows
+      - get_table_statistics
+
