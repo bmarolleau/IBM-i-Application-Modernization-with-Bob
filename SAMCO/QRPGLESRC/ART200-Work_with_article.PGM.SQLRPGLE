@@ -252,25 +252,29 @@
            arid = %editc(NewId:'X');
          else;
            exec sql
-             select arid,
-                    ardesc,
-                    artifa,
-                    armod,
-                    armodid,
-                    ardel,
-                    arcrea
+             select a.arid,
+                    a.ardesc,
+                    a.artifa,
+                    a.armod,
+                    a.armodid,
+                    a.ardel,
+                    a.arcrea,
+                    coalesce(f.fadesc, '')
                into :arid,
                     :ardesc,
                     :artifa,
                     :armod,
                     :armodid,
                     :ardel,
-                    :arcrea
-               from article
-              where arid = :arid;
+                    :arcrea,
+                    :famdesc
+               from article a
+          left join familly f
+                 on a.artifa = f.faid
+              where a.arid = :arid;
 
            if sqlcod = 0;
-             famdesc = getArtFamDesc(artifa);
+             ;
            else;
              clear famdesc;
            endif;
