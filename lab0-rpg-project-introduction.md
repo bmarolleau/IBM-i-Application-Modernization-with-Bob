@@ -1,26 +1,26 @@
-# Lab 101-0: Discover the SAMCO Application with Bob
+# Lab 101-0: Descubrir la aplicacion SAMCO con Bob
 
-## Overview
+## Resumen
 
-Before writing a single line of code, you need to understand **what** you are working with. In this lab, you will use IBM Bob to explore the SAMCO application — its purpose, its business rules, and how it all fits together.
+Antes de escribir una sola linea de codigo, necesitas entender **que** tienes delante. En este lab usaras IBM Bob para explorar la aplicacion SAMCO: su proposito, sus reglas de negocio y como encaja todo.
 
-You will not write any code. Instead, you will ask Bob a series of questions about the project files, and Bob will explain everything to you in plain English.
+No vas a escribir codigo. En su lugar, haras preguntas a Bob sobre los archivos del proyecto y Bob te explicara todo de forma clara.
 
-**Duration**: 15 minutes  
-**Difficulty**: Beginner  
-**What You'll Learn**: The goal, business logic, and end-to-end flow of the SAMCO RPG application
+**Duracion**: 15 minutos  
+**Dificultad**: Principiante  
+**Lo que aprenderas**: El objetivo, la logica de negocio y el flujo de punta a punta de la aplicacion RPG SAMCO
 
 ---
 
-## Prerequisites
+## Prerrequisitos
 
 - IBM Bob with this project open
 
 ---
 
-## Use Case: Understand a Legacy Application Before Modernizing It
+## Caso de uso: entender una aplicacion legada antes de modernizarla
 
-A common mistake when modernizing legacy systems is to start coding before fully understanding what the system does. This lab teaches you to use Bob as a **discovery tool** — a way to rapidly build a mental model of an unfamiliar codebase.
+Un error comun al modernizar sistemas legados es empezar a programar antes de entender completamente que hace el sistema. Este lab te ensena a usar Bob como **herramienta de descubrimiento**, una forma rapida de construir un modelo mental de una base de codigo desconocida.
 
 ---
 
@@ -46,7 +46,7 @@ Keep the explanation simple — I am new to this codebase.
 - Bob identifies SAMCO as an order management system
 - Bob lists the three menu groups: Master files, Reports, Utilities
 - Bob explains the business domain: articles, customers, providers, orders
-- Bob describes the green screen interface and the IBM i platform
+- Bob describe la interfaz de pantalla verde y la plataforma IBM i
 
 ---
 
@@ -260,40 +260,40 @@ Based on everything we've discussed about SAMCO, give me:
 4. Which lab in this series addresses each challenge
 ```
 
-**Expected Summary:**
-- Bob summarises SAMCO as a green-screen order management system for articles, customers, and orders
-- Bob lists critical rules: soft deletes, VAT calculation, order number locking, order lifecycle, line total formula
-- Bob identifies the three challenges: Fixed-format RPG (Lab 101-1), RLA data access (Lab 101-3), green screen UI (Lab 101-2)
+**Resumen esperado:**
+- Bob resume SAMCO como un sistema de gestion de pedidos en pantalla verde para articulos, clientes y pedidos
+- Bob lista reglas criticas: borrado logico, calculo de VAT, bloqueo de numero de pedido, ciclo de vida del pedido, formula de total por linea
+- Bob identifica los tres desafios: RPG en formato Fixed (Lab 101-1), acceso a datos RLA (Lab 101-3), interfaz de pantalla verde (Lab 101-2)
 
 ---
 
-## ✅ Success Criteria
+## Criterios de exito
 
-You've successfully completed this lab when:
-- [ ] Bob explained the purpose and functional areas of SAMCO
-- [ ] You understand the soft-delete pattern and why it is used
-- [ ] You can describe the VAT calculation formula
-- [ ] You understand the six steps of the panel-step state machine
-- [ ] You can trace the complete flow of creating a customer order
-- [ ] You understand the difference between RLA and SQL data access
-- [ ] Bob generated comprehensive architecture documentation
-- [ ] Bob created visual Mermaid diagrams for the application architecture
-
----
-
-## Key Takeaways
-
-1. **Bob is a discovery tool**: Use it to understand unfamiliar code before touching it
-2. **Business rules must be preserved**: Modernization changes the technology, not the behaviour
-3. **Two data access styles coexist**: RLA and SQL are both present — the labs will show you how to migrate from one to the other
+Completaste este lab cuando:
+- [ ] Bob explico el proposito y las areas funcionales de SAMCO
+- [ ] Entiendes el patron de borrado logico y por que se usa
+- [ ] Puedes describir la formula de calculo de VAT
+- [ ] Entiendes los seis pasos de la maquina de estados panel-step
+- [ ] Puedes trazar el flujo completo de creacion de un pedido de cliente
+- [ ] Entiendes la diferencia entre acceso a datos RLA y SQL
+- [ ] Bob genero documentacion de arquitectura completa
+- [ ] Bob creo diagramas Mermaid visuales para la arquitectura de la aplicacion
 
 ---
 
-## Next Steps
+## Puntos clave
 
-You are now ready to begin the modernization labs:
+1. **Bob es una herramienta de descubrimiento**: usalo para entender codigo desconocido antes de modificarlo
+2. **Las reglas de negocio deben preservarse**: la modernizacion cambia la tecnologia, no el comportamiento
+3. **Conviven dos estilos de acceso a datos**: RLA y SQL estan presentes; los labs te muestran como migrar de uno al otro
 
-- **[Lab 101-1](lab1-rpg-documentation-fixed-to-free.md)** — Convert Fixed-format RPG to Free-format using Bob
-- **[Lab 101-2](lab2-ui-modernization-react-carbon.md)** — Build a modern React web interface for the article list
-- **[Lab 101-3](lab3-dds-to-sql-rla-refactoring.md)** — Replace a Record Level Access operation with an SQL query
-- **[Lab 101-4](lab4-ibmi-mcp-mode.md)** — Connect Bob to a live IBM i system using MCP
+---
+
+## Siguientes pasos
+
+Ahora ya estas listo para comenzar los labs de modernizacion:
+
+- **[Lab 101-1](lab1-rpg-documentation-fixed-to-free.md)** — Convertir RPG de formato Fixed a Free usando Bob
+- **[Lab 101-2](lab2-ui-modernization-react-carbon.md)** — Construir una interfaz web moderna en React para la lista de articulos
+- **[Lab 101-3](lab3-dds-to-sql-rla-refactoring.md)** — Reemplazar una operacion de Record Level Access por una consulta SQL
+- **[Lab 101-4](lab4-ibmi-mcp-mode.md)** — Conectar Bob con un sistema IBM i real usando MCP
