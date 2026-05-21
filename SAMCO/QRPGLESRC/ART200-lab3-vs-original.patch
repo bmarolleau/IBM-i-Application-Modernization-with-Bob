@@ -1,0 +1,236 @@
+diff --git a/ART200-Work_with_article.PGM.SQLRPGLE.original b/ART200-Work_with_article.PGM.SQLRPGLE.convertido
+index 8a969c5..5d31794 100644
+--- a/ART200-Work_with_article.PGM.SQLRPGLE.original
++++ b/ART200-Work_with_article.PGM.SQLRPGLE.convertido
+@@ -105,14 +105,73 @@
+          RRb01 = RRn01 + 1;
+          opt01 = 0;
+          count = 0;
+-         read article2;
+-         dow not %eof(article2) and count < 14;
++
++         exec sql
++           declare cArt2 cursor for
++           select arid,
++                  ardesc,
++                  arsalepr,
++                  arwhspr,
++                  artifa,
++                  arstock,
++                  arminqty,
++                  arcusqty,
++                  arpurqty,
++                  arvatcd,
++                  arcrea,
++                  armod,
++                  armodid,
++                  ardel
++             from article
++            where (ardesc > :savdesc)
++               or (ardesc = :savdesc and arid >= :savid)
++            order by ardesc,
++                     arid;
++
++         exec sql open cArt2;
++         exec sql
++           fetch cArt2 into
++             :arid,
++             :ardesc,
++             :arsalepr,
++             :arwhspr,
++             :artifa,
++             :arstock,
++             :arminqty,
++             :arcusqty,
++             :arpurqty,
++             :arvatcd,
++             :arcrea,
++             :armod,
++             :armodid,
++             :ardel;
++
++         dow sqlcod = 0 and count < 14;
+            RRN01 += 1;
+            count += 1;
+            write sfl01;
+-           read article2;
++
++           exec sql
++             fetch cArt2 into
++               :arid,
++               :ardesc,
++               :arsalepr,
++               :arwhspr,
++               :artifa,
++               :arstock,
++               :arminqty,
++               :arcusqty,
++               :arpurqty,
++               :arvatcd,
++               :arcrea,
++               :armod,
++               :armodid,
++               :ardel;
+          enddo;
+-         sflend = %eof(article1);
++
++         exec sql close cArt2;
++
++         sflend = (sqlcod = 100);
+          step01 = dsp;
+          exsr s01sav;
+        endsr;
+@@ -203,12 +262,17 @@
+            opt01 = 0;
+            update sfl01;
+          when opt01 = 4;
+-           chain arid article1;
+-           ardel = 'X';
+-           armod = %timestamp();
+-           armodid = user;
+-           update farti;
+-           step02 = dsp;
++           exec sql
++             update article
++                set ardel = 'X',
++                    armod = current timestamp,
++                    armodid = :user
++              where arid = :arid;
++           if sqlcod = 0;
++             step02 = dsp;
++           else;
++             step01 = dsp;
++           endif;
+            opt01 = 0;
+            update sfl01;
+          when opt01 = 6;
+@@ -246,8 +310,33 @@
+            reset farti;
+            arid = %editc(NewId:'X');
+          else;
+-           chain arid article1;
+-           famdesc = getArtFamDesc(artifa);
++           exec sql
++             select a.arid,
++                    a.ardesc,
++                    a.artifa,
++                    a.armod,
++                    a.armodid,
++                    a.ardel,
++                    a.arcrea,
++                    coalesce(f.fadesc, '')
++               into :arid,
++                    :ardesc,
++                    :artifa,
++                    :armod,
++                    :armodid,
++                    :ardel,
++                    :arcrea,
++                    :famdesc
++               from article a
++          left join familly f
++                 on a.artifa = f.faid
++              where a.arid = :arid;
++
++           if sqlcod = 0;
++             ;
++           else;
++             clear famdesc;
++           endif;
+          endif;
+          step02 = dsp;
+        endsr;
+@@ -292,14 +381,89 @@
+          armod = %timestamp();
+          armodid = user;
+          if mode = upd;
+-           update farti;
++           exec sql
++             update article
++                set ardesc = :ardesc,
++                    arsalepr = :arsalepr,
++                    arwhspr = :arwhspr,
++                    artifa = :artifa,
++                    arstock = :arstock,
++                    arminqty = :arminqty,
++                    arcusqty = :arcusqty,
++                    arpurqty = :arpurqty,
++                    arvatcd = :arvatcd,
++                    armod = :armod,
++                    armodid = :armodid,
++                    ardel = :ardel
++              where arid = :arid;
+          else;
+            arcrea = %date();
+-           write(e) farti;
+-           dow %error;
++           exec sql
++             insert into article
++               (arid,
++                ardesc,
++                arsalepr,
++                arwhspr,
++                artifa,
++                arstock,
++                arminqty,
++                arcusqty,
++                arpurqty,
++                arvatcd,
++                arcrea,
++                armod,
++                armodid,
++                ardel)
++             values
++               (:arid,
++                :ardesc,
++                :arsalepr,
++                :arwhspr,
++                :artifa,
++                :arstock,
++                :arminqty,
++                :arcusqty,
++                :arpurqty,
++                :arvatcd,
++                :arcrea,
++                :armod,
++                :armodid,
++                :ardel);
++
++           dow sqlcod = -803;
+              Newid += 1;
+              arid = %editc(NewId:'X');
+-             write(e) farti;
++             exec sql
++               insert into article
++                 (arid,
++                  ardesc,
++                  arsalepr,
++                  arwhspr,
++                  artifa,
++                  arstock,
++                  arminqty,
++                  arcusqty,
++                  arpurqty,
++                  arvatcd,
++                  arcrea,
++                  armod,
++                  armodid,
++                  ardel)
++               values
++                 (:arid,
++                  :ardesc,
++                  :arsalepr,
++                  :arwhspr,
++                  :artifa,
++                  :arstock,
++                  :arminqty,
++                  :arcusqty,
++                  :arpurqty,
++                  :arvatcd,
++                  :arcrea,
++                  :armod,
++                  :armodid,
++                  :ardel);
+            enddo;
+            savdesc = ardesc;
+            savId = arid;
