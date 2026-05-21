@@ -1,27 +1,27 @@
-# Lab 101-4: IBM i modes, IBM i MCP, Bob Shell - 15 Minute Hands-On Lab
+# Lab 101-4: Modos IBM i, IBM i MCP y Bob Shell - Lab practico de 15 minutos
 
-**Duration**: 15 minutes  
-**Level**: Intermediate  
-**Prerequisites**: 
+**Duracion**: 15 minutos  
+**Nivel**: Intermedio  
+**Prerrequisitos**: 
 - IBM Bob installed and running
 - Access to an IBM i system with Mapepire server running (port 8076)
 - Basic familiarity with command line
-**Version:** version 2 updated on April 1, 2026
+**Version:** version 2 actualizada el 1 de abril de 2026
 
-## Lab Overview
+## Resumen del lab
 
 In this hands-on lab, you'll configure IBM Bob to work with IBM i systems using the Model Context Protocol (MCP). You'll set up custom modes, connect to your IBM i system, and execute your first queries using Bob's AI-powered interface. 
 
 The *IBM Bob premium package for IBM i* available at GA will bring standard IBM i modes and tools that will differ from the ones used in this tutorial. 
 
-## What You'll Learn
+## Que aprenderas
 
 - How to configure Bob for IBM i development with MCP and modes
 - How to use IBM i-specific AI agent modes
 - How to query IBM i systems using natural language
 - How to leverage pre-built IBM i tools
 
-## Prerequisites (15 minutes)
+## Prerrequisitos (15 minutos)
 
 An IBM i VM is necessary for this lab, with 8076 port open for Mapepire server (use tunneling if using Power Virtual Server/TechZone). You'll find hereunder a few options to get an IBM i virtual machine, and instructions to start the Mapepire server on IBM i that is requried for this lab.
 
@@ -54,7 +54,7 @@ ssh -L 50000:localhost:23 -L 2001:localhost:2001  -L 449:localhost:449 -L 8470:l
 Note that in the command above, port 8076 is the default **mapepire** port. If you have changed it, please update it accordingly. Replace `<myuser>` and `<myIPaddress>` with your IBM i user and IP address.
 
 
-## Lab Setup (5 minutes)
+## Configuracion del lab (5 minutos)
 
 ### Step 1: Open project
 
@@ -118,7 +118,7 @@ Edit `.bob/mcp.json` to use the `.env` file (remove credential references in any
 2. Check that `IBM i Agent` and `IBM i MCP Tool Builder` appear in your modes list
 3. Check that `ibmi-mcp-server` and `ibmi-mcp-docs` appear connected in your MCP list
 
-## Exercise 1: Switch to IBM i Agent Mode (2 minutes)
+## Ejercicio 1: cambiar al modo IBM i Agent (2 minutos)
 
 **Objective**: Select the IBM i-specific AI agent.
 
@@ -129,7 +129,7 @@ Edit `.bob/mcp.json` to use the `.env` file (remove credential references in any
    - Bob should describe its IBM i capabilities
    - You may need to reload the window to refresh the credentials for the MCP server: `CMD` `SHFT` `P`, search `Developer: Reload Window`
 
-## Exercise 2: Query System Status (3 minutes)
+## Ejercicio 2: consultar estado del sistema (3 minutos)
 
 **Objective**: Use Bob to check your IBM i system's performance.
 
@@ -147,7 +147,7 @@ Edit `.bob/mcp.json` to use the `.env` file (remove credential references in any
 
 **✅ Success Criteria**: Bob returns formatted system performance data from your IBM i system.
 
-## Exercise 3: Explore Database Objects (3 minutes)
+## Ejercicio 3: explorar objetos de base de datos (3 minutos)
 
 **Objective**: Use Bob to explore your IBM i database.
 
@@ -163,7 +163,7 @@ Edit `.bob/mcp.json` to use the `.env` file (remove credential references in any
 
 **✅ Success Criteria**: Bob successfully queries and displays IBM i service information.
 
-## Exercise 4: Security Analysis (Optional - 2 minutes)
+## Ejercicio 4: analisis de seguridad (opcional - 2 minutos)
 
 **Objective**: Use Bob to perform a basic security check.
 
@@ -175,7 +175,7 @@ Edit `.bob/mcp.json` to use the `.env` file (remove credential references in any
 
 **✅ Success Criteria**: Bob executes security analysis tools and returns results (or explains permission requirements).
 
-## Exercise 5: (optional) Using Bob Shell CLI (3 minutes)
+## Ejercicio 5: (opcional) uso de Bob Shell CLI (3 minutos)
 
 **Objective**: Learn to use Bob from the command line for general IBM i assistance.
 
@@ -356,7 +356,7 @@ Congratulations! You've successfully:
 5. ✅ Leveraged pre-built tools for system monitoring
 6. ✅ Automated IBM i queries using Bob CLI
 
-## Next Steps   
+## Siguientes pasos   
 
 ### Create Custom Tools
 

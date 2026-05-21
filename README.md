@@ -11,6 +11,17 @@ See the [Premium Package page ](./lab100-premium-package-introduction.md) for de
 
 For essential concepts and best practices when using IBM Bob for IBM i modernization, see the [Bob Concepts & Best Practices](./bob-concepts-and-best-practices.md) guide.
 
+## Indice rapido de labs
+
+| Lab | Archivo | Duracion | Objetivo principal |
+|-----|---------|----------|--------------------|
+| Lab 0 | [lab0-rpg-project-introduction.md](lab0-rpg-project-introduction.md) | 15 min | Descubrir arquitectura, reglas de negocio y flujo SAMCO |
+| Lab 1 | [lab1-rpg-documentation-fixed-to-free.md](lab1-rpg-documentation-fixed-to-free.md) | 15 min | Convertir RPG de formato Fixed a Free |
+| Lab 2 | [lab2-ui-modernization-react-carbon.md](lab2-ui-modernization-react-carbon.md) | 20 min | Modernizar UI con React + Carbon |
+| Lab 3 | [lab3-dds-to-sql-rla-refactoring.md](lab3-dds-to-sql-rla-refactoring.md) | 15 min | Convertir operaciones RLA a SQL |
+| Lab 4 | [lab4-ibmi-mcp-mode.md](lab4-ibmi-mcp-mode.md) | 15 min | Configurar Bob con modos IBM i y MCP |
+| Lab 5 | [lab5-ansible-ptf-management.md](lab5-ansible-ptf-management.md) | 20 min | Automatizar gestion de PTF con Ansible |
+
 ---
 
 ![alt text](pics/green-screen-to-react.png)
@@ -62,6 +73,34 @@ For essential concepts and best practices when using IBM Bob for IBM i moderniza
 - Build a modern web table with search
 
 **Use Case**: Display articles in a web browser using Carbon Design System
+
+#### Lab 2 - Conectar datos reales (REST API)
+
+Si quieres ejecutar Lab 2 con datos reales en lugar de mock data:
+
+1. Inicia el backend en una terminal:
+
+```bash
+cd article-api-server
+npm install
+npm run dev
+```
+
+2. Configura el frontend en `article-list-app/.env`:
+
+```env
+VITE_API_URL=http://localhost:3001
+```
+
+3. Inicia el frontend en otra terminal:
+
+```bash
+cd article-list-app
+npm install
+npm run dev
+```
+
+4. Verifica en el navegador que la lista carga desde la API y que crear/editar/eliminar funciona.
 
 ---
 

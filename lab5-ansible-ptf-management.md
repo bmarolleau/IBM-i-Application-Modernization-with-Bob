@@ -1,11 +1,11 @@
-# Lab 5: Building a PTF Management Assistant on IBM i with IBM Bob & Ansible
+# Lab 5: Construir un asistente de gestion de PTF en IBM i con IBM Bob y Ansible
 
-**Duration:** 20 minutes  
-**Difficulty:** Intermediate   
-**Version:** 2 - April 1 , 2026
+**Duracion:** 20 minutos  
+**Dificultad:** Intermedio   
+**Version:** 2 - 1 de abril de 2026
 
 
-## Introduction
+## Introduccion
 
 This lab guides you through creating an automated assistant to manage Program Temporary Fixes (PTFs) on IBM i systems using Ansible with Bob AI assistant integration. You'll learn to leverage Bob's AI capabilities to streamline PTF currency checks, automate compliance reporting, and manage system updates efficiently.
 
@@ -16,9 +16,9 @@ This lab guides you through creating an automated assistant to manage Program Te
 - Generate formatted reports for system administrators
 - Explore advanced automation scenarios for IBM i environments
 
-## Prerequisites
+## Prerrequisitos
 
-### IBM i System Requirements
+### Requisitos del sistema IBM i
 - IBM i 7.3 or higher
 - SSH daemon running (`STRTCPSVR SERVER(*SSHD)`)
 - User profile with *ALLOBJ or appropriate PTF management authorities
@@ -27,7 +27,7 @@ This lab guides you through creating an automated assistant to manage Program Te
 Please check on the [Lab Instructor Guide](./lab5-ansible-ptf-management.md#lab-instructor-guide) section for more details.
 
 
-### Bob Workstation Requirements
+### Requisitos de la estacion de trabajo con Bob
 - Ansible 2.9+ installed (`pip install ansible`)
 - Python 3.8+ with pip
 - IBM i Ansible collections:
@@ -39,7 +39,7 @@ Please check on the [Lab Instructor Guide](./lab5-ansible-ptf-management.md#lab-
 - Bob AI assistant installed and configured
 - Network connectivity to IBM i system (port 22) (see lab 4)
 
-### Verify Setup
+### Verificar configuracion
 ```bash
 # Verify Ansible installation
 ansible --version
@@ -48,7 +48,7 @@ ansible --version
 ansible-galaxy collection list | grep ibm.power_ibmi
 ```
 
-## Custom Mode Configuration
+## Configuracion del modo personalizado
 
 For this we'll use the `ansible-for-i` custom mode defined in `./.bob/custom_modes.yaml`:
 
@@ -86,9 +86,9 @@ For this we'll use the `ansible-for-i` custom mode defined in `./.bob/custom_mod
     - command
 ```
 
-## First Playbook Creation
+## Primera creacion de playbook
 
-### Part 1: Using Bob to Generate the Playbook
+### Parte 1: usar Bob para generar el playbook
 
 Let's use Bob to generate the complete playbook structure and automation code.
 
@@ -145,7 +145,7 @@ all:
 ...
 ```
 
-### Part 2: Understanding the Generated Playbook
+### Parte 2: entender el playbook generado
 
 After Bob generates the automation, review the PTF currency check playbook structure at `./ansible/playbooks/check_ptf_currency.yml`. It should look something like:
 
@@ -174,13 +174,13 @@ After Bob generates the automation, review the PTF currency check playbook struc
     ...
 ```
 
-## Template Development
+## Desarrollo de plantilla
 
 Duplicate Jinja2 template at `./ansible/templates/ptf_currency_report.html.j2`, convert it to html: `ptf_currency_report.html`, and open it in your browser:
 
 ![](./pics/PTF_report_unfilled.png)
 
-## Playbook Execution
+## Ejecucion del playbook
 
 **Run the playbook through Bob:**
 ```bash
@@ -208,7 +208,7 @@ Run the PTF currency check playbook
 ![](./pics/PTF_report_filled.png)
 
 
-## Some Additional Use Cases
+## Casos de uso adicionales
 
 ### 1. Automated PTF Application
 ```yaml

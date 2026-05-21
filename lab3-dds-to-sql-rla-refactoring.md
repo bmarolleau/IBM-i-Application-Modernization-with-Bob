@@ -1,24 +1,24 @@
-# Lab 101-3: Convert One RLA Operation to SQL with Bob
+# Lab 101-3: Convertir una operacion RLA a SQL con Bob
 
-## Overview
-Learn how to use IBM Bob to convert a single Record Level Access (RLA) operation to modern SQL in 15 minutes.
+## Resumen
+Aprende a usar IBM Bob para convertir una operacion de Record Level Access (RLA) a SQL moderno en 15 minutos.
 
-**Duration**: 15 minutes  
-**Difficulty**: Beginner  
-**What You'll Build**: Convert one CHAIN operation to SQL SELECT
-
----
-
-## Prerequisites
-- Access to the project files in VS Code
-- IBM Bob AI assistant available
-- File: `SAMCO/QRPGLESRC/ART200-Work_with_article.PGM.SQLRPGLE`
+**Duracion**: 15 minutos  
+**Dificultad**: Principiante  
+**Lo que vas a construir**: Convertir una operacion CHAIN a SQL SELECT
 
 ---
 
-## Use Case: Convert Article Lookup from RLA to SQL
+## Prerrequisitos
+- Acceso a los archivos del proyecto en VS Code
+- Asistente IBM Bob disponible
+- Archivo: `SAMCO/QRPGLESRC/ART200-Work_with_article.PGM.SQLRPGLE`
 
-We'll convert the article lookup operation (CHAIN) used when editing an article to use SQL instead.
+---
+
+## Caso de uso: convertir busqueda de articulo de RLA a SQL
+
+Vamos a convertir a SQL la operacion de busqueda de articulo (CHAIN) usada al editar un articulo.
 
 ---
 
@@ -128,7 +128,7 @@ List 2-3 simple benefits.
 
 ---
 
-## ✅ Success Criteria
+## Criterios de exito
 
 You've successfully completed this lab when:
 - [ ] You understand what CHAIN does
@@ -164,7 +164,7 @@ Exec SQL
 
 ---
 
-## Key Takeaways
+## Puntos clave
 
 1. **SQL is More Powerful**: Can get related data in one query
 2. **Bob Can Convert**: Ask Bob to convert RLA to SQL
@@ -173,7 +173,7 @@ Exec SQL
 
 ---
 
-## Real-World Example
+## Ejemplo real
 
 This pattern is used in `SAMCO/QRPGLESRC/ART400.SQLRPGLE` (lines 79-97):
 
@@ -197,7 +197,7 @@ Exec SQL
 
 ---
 
-## Next Steps
+## Siguientes pasos
 
 **Try Converting More Operations:**
 - Ask Bob to convert the READ loop (s01lod)

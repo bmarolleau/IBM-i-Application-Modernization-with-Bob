@@ -1,24 +1,24 @@
-# Lab 101-1: RPG Fixed-to-Free Conversion with Bob
+# Lab 101-1: Conversion RPG de Fixed a Free con Bob
 
-## Overview
-Learn how to use IBM Bob to analyze legacy RPG code and convert it from Fixed format to modern Free format in just 15 minutes.
+## Resumen
+Aprende a usar IBM Bob para analizar codigo RPG legado y convertirlo de formato Fixed a formato Free moderno en solo 15 minutos.
 
-**Duration**: 15 minutes  
-**Difficulty**: Beginner  
-**What You'll Build**: Convert one RPG subroutine from Fixed to Free format
-
----
-
-## Prerequisites
-- Access to the project files in VS Code
-- IBM Bob AI assistant available
-- File: `SAMCO/QRPGLESRC/ART200-Work_with_article.PGM.SQLRPGLE`
+**Duracion**: 15 minutos  
+**Dificultad**: Principiante  
+**Lo que vas a construir**: Convertir una subrutina RPG de formato Fixed a Free
 
 ---
 
-## Use Case: Convert Subfile Load Logic
+## Prerrequisitos
+- Acceso a los archivos del proyecto en VS Code
+- Asistente IBM Bob disponible
+- Archivo: `SAMCO/QRPGLESRC/ART200-Work_with_article.PGM.SQLRPGLE`
 
-We'll convert the `s01lod` (Load Subfile) subroutine from Fixed format to Free format.
+---
+
+## Caso de uso: convertir logica de carga de subfile
+
+Vamos a convertir la subrutina `s01lod` (carga de subfile) de formato Fixed a formato Free.
 
 ---
 
@@ -146,7 +146,7 @@ End-Proc;
 
 ---
 
-## ✅ Success Criteria
+## Criterios de exito
 
 You've successfully completed this lab when:
 - [ ] Bob explained the original Fixed format code
@@ -156,16 +156,16 @@ You've successfully completed this lab when:
 
 ---
 
-## Key Takeaways
+## Puntos clave
 
-1. **Bob Can Explain**: Use Bob to understand legacy code quickly
+1. **Bob puede explicar**: usa Bob para entender codigo legado rapidamente
 2. **Free Format is Clearer**: Modern syntax is more readable
 3. **Named Constants**: Replace magic numbers for maintainability
 4. **Incremental Changes**: Convert one subroutine at a time
 
 ---
 
-## Next Steps
+## Siguientes pasos
 
 - Try converting another subroutine (s01chk or s01act)
 - Ask Bob to convert an entire panel (pnl02)
