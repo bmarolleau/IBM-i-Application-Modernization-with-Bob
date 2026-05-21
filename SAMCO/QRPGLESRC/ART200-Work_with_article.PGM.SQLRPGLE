@@ -203,12 +203,17 @@
            opt01 = 0;
            update sfl01;
          when opt01 = 4;
-           chain arid article1;
-           ardel = 'X';
-           armod = %timestamp();
-           armodid = user;
-           update farti;
-           step02 = dsp;
+           exec sql
+             update article
+                set ardel = 'X',
+                    armod = current timestamp,
+                    armodid = :user
+              where arid = :arid;
+           if sqlcod = 0;
+             step02 = dsp;
+           else;
+             step01 = dsp;
+           endif;
            opt01 = 0;
            update sfl01;
          when opt01 = 6;
@@ -246,8 +251,29 @@
            reset farti;
            arid = %editc(NewId:'X');
          else;
-           chain arid article1;
-           famdesc = getArtFamDesc(artifa);
+           exec sql
+             select arid,
+                    ardesc,
+                    artifa,
+                    armod,
+                    armodid,
+                    ardel,
+                    arcrea
+               into :arid,
+                    :ardesc,
+                    :artifa,
+                    :armod,
+                    :armodid,
+                    :ardel,
+                    :arcrea
+               from article
+              where arid = :arid;
+
+           if sqlcod = 0;
+             famdesc = getArtFamDesc(artifa);
+           else;
+             clear famdesc;
+           endif;
          endif;
          step02 = dsp;
        endsr;
