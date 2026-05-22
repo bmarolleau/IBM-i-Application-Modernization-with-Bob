@@ -1,8 +1,13 @@
 .env
+.env.backup-*
 .bob/mcp.json
 .vscode/mcp.json
 ../.mcp.json
 .DS_Store
+node_modules/
+.tmp/
+.bob/logs/
+.bob/backup-lab4-*/
 lab100-premium-package-introduction.md
 lab101-premium-devops-buildsamco.md
 lab102-premium-developer-compile.md

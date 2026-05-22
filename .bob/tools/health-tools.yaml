@@ -1,0 +1,27 @@
+sources:
+  ibmi-system:
+    host: ${DB2i_HOST}
+    user: ${DB2i_USER}
+    password: ${DB2i_PASS}
+    port: ${DB2i_PORT}
+    ignore-unauthorized: true
+
+tools:
+  list_service_categories:
+    source: ibmi-system
+    description: List all service categories with counts of services in each.
+    statement: |-
+      SELECT service_category,
+             COUNT(*) AS service_count
+      FROM qsys2.services_info
+      GROUP BY service_category
+      ORDER BY service_count DESC, service_category
+    domain: sysadmin
+    category: discovery
+
+toolsets:
+  health_checks:
+    title: "Health Check Tools"
+    description: "Minimal toolset for MCP startup and connectivity validation"
+    tools:
+      - list_service_categories
