@@ -3,7 +3,7 @@
 ## Mode Definition
 
 **Slug:** `ibmi-dev`
-**Name:** ℹ️ IBM i Dev
+**Name:** ℹ️ Custom - IBM i Dev
 **Description:** Explain, generate, compile, or document code on IBM i
 
 ## Role Definition

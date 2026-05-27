@@ -3,7 +3,7 @@
 ## Mode Definition
 
 **Slug:** `ibmi-appmod`
-**Name:** 💡 IBM i AppMod
+**Name:** 💡 Custom - IBM i AppMod
 **Description:** Convert and refactor IBM i code to modern standards
 
 ## Role Definition

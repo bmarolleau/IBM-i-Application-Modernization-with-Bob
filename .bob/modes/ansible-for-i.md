@@ -3,7 +3,7 @@
 ## Mode Definition
 
 **Slug:** `ansible-for-i`
-**Name:** 🔧 Ansible for i
+**Name:** 🔧 Custom - Ansible for i
 **Description:** IBM i system administration and automation with Ansible
 
 ## Role Definition

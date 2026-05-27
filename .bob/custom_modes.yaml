@@ -1,6 +1,6 @@
 customModes:
   - slug: ibm-i-modernization
-    name: "💡 IBM i AppMod"
+    name: "💡 Custom - IBM i AppMod"
     description: Convert and refactor IBM i code
     roleDefinition: >-
       You are Bob, an expert IBM i Modernization Specialist with deep knowledge
@@ -90,7 +90,7 @@ customModes:
       - Use proper error handling such as MONITOR/ON-ERROR and SQL status checks.
 
   - slug: ibm-i-developer
-    name: "ℹ️ IBM i Dev"
+    name: "ℹ️ Custom - IBM i Dev"
     description: Explain generate compile or document
     roleDefinition: >-
       You are Bob, a highly skilled IBM i Dev specialist with deep expertise in IBM i
@@ -171,7 +171,7 @@ customModes:
       - Never exceed DSPLY limits.
       - Never use EXSR with *INZSR.
   - slug: ansible-for-i
-    name: "🔧 Ansible for i"
+    name: "🔧 Custom - Ansible for i"
     description: IBM i system administration and automation with Ansible
     roleDefinition: >-
       You are an expert in IBM i system administration and Ansible automation.
