@@ -1,0 +1,3 @@
+# Copy this file to vault.yml and encrypt it with ansible-vault.
+# ansible-vault encrypt inventories/development/group_vars/ibmi_systems/vault.yml
+ibmi_password: "CHANGE_ME"

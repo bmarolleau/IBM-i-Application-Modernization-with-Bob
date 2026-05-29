@@ -1,0 +1,76 @@
+---
+- name: Check PTF currency on IBM i systems
+  hosts: ibmi_systems
+  gather_facts: false
+
+  vars:
+    report_dir: "{{ lookup('env', 'PTF_REPORT_DIR') | default(lookup('env', 'HOME') ~ '/ansible-reports', true) }}"
+    report_file: "{{ report_dir }}/ptf_currency_report_{{ inventory_hostname }}.html"
+    required_ptf_groups:
+      - "SF99740"
+      - "SF99738"
+    # Leave empty if you only want group-level status; override via -e critical_ptfs='[...]'
+    critical_ptfs: []
+
+  tasks:
+    - name: Ensure local report directory exists
+      ansible.builtin.file:
+        path: "{{ report_dir }}"
+        state: directory
+      delegate_to: localhost
+      run_once: true
+
+    - name: Gather system status snapshot
+      ibm.power_ibmi.ibmi_sql_query:
+        sql: "SELECT * FROM QSYS2.SYSTEM_STATUS_INFO FETCH FIRST 1 ROW ONLY"
+      register: system_status_result
+
+    - name: Check required PTF groups
+      ibm.power_ibmi.ibmi_fix_group_check:
+        groups: "{{ required_ptf_groups }}"
+      register: ptf_group_result
+      failed_when: false
+
+    - name: Gather installed PTF details
+      ibm.power_ibmi.ibmi_sql_query:
+        sql: "SELECT * FROM QSYS2.PTF_INFO FETCH FIRST 500 ROWS ONLY"
+      register: ptf_info_result
+
+    - name: Normalize SQL rows for PTF data
+      ansible.builtin.set_fact:
+        ptf_rows: "{{ ptf_info_result.row | default(ptf_info_result.rows | default([])) }}"
+
+    - name: Initialize installed PTF list
+      ansible.builtin.set_fact:
+        installed_ptf_ids: []
+
+    - name: Collect installed PTF identifiers when available
+      ansible.builtin.set_fact:
+        installed_ptf_ids: "{{ installed_ptf_ids + [item.PTF_IDENTIFIER] }}"
+      loop: "{{ ptf_rows }}"
+      when: item.PTF_IDENTIFIER is defined
+
+    - name: Calculate missing critical PTF list
+      ansible.builtin.set_fact:
+        missing_critical_ptfs: "{{ critical_ptfs | difference(installed_ptf_ids | default([])) }}"
+
+    - name: Calculate compliance percentage
+      ansible.builtin.set_fact:
+        compliance_percentage: >-
+          {{
+            ((critical_ptfs | length - missing_critical_ptfs | length) * 100)
+            // (critical_ptfs | length)
+            if (critical_ptfs | length) > 0
+            else 100
+          }}
+
+    - name: Generate PTF currency HTML report
+      ansible.builtin.template:
+        src: "{{ playbook_dir }}/../templates/ptf_currency_report.j2"
+        dest: "{{ report_file }}"
+        unsafe_writes: true
+      delegate_to: localhost
+
+    - name: Report output location
+      ansible.builtin.debug:
+        msg: "PTF currency report generated: {{ report_file }}"
