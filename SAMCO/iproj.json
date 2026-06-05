@@ -12,7 +12,7 @@
   ],
   "postUsrlibl": [],
   "setIBMiEnvCmd": [],
-  "repository": "https://github.com/bmarolleau/bob-ibmi-demo.git",
+  "repository": "https://github.com/bmarolleau/IBM-i-Application-Modernization-with-Bob.git",
   "compileCommand": "/QOpenSys/pkgs/bin/makei c -f {filename}",
   "buildCommand": "/QOpenSys/pkgs/bin/makei build"
 }

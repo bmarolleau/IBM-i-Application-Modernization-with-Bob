@@ -14,6 +14,13 @@ You are part of a **team of developers**, all onboarded on IBM Bob, all working 
 
 ### How the Environment Works
 
+Source can live on the system or in Git — your choice. Historically, IBM i source was stored as members inside source physical files (QSYS), compiled directly on the system. The platform originally positioned the LPAR as the source of truth. But IBM i has evolved: the compilers and OS now fully support modern Git-centric workflows, IFS stream files, and local development if you choose. Many shops still use QSYS libraries, but the platform gives you options. 
+
+> **Key general principles with PPi**: Source can live in the **local workspace** or in **source files in QSYS**. When using PPi, you can keep your files in QSYS if you want to, and use Bob/PPi as an assistant while your developers still use SEU/PDM. **Just because you can doesn't mean you should!**.
+We really encourage you move your source files to the IFS and git, and use QSYS when it makes sense. 
+
+> **Key principle in these Labs**: Source lives in the **local workspace** only. `SAMCOx` contains compiled programs, service programs, and database objects — no source members. `SAMSRC` contains source files of the SAMCO application and is never modified. Compiled objects always target `SAMCOx` — never the shared `SAMCO` library.
+
 | What | Where |
 |------|-------|
 | **Source code** | Local workspace — your Git clone on your workstation (IFS-synchronized). **This is the only place source is edited.** |
@@ -21,13 +28,11 @@ You are part of a **team of developers**, all onboarded on IBM Bob, all working 
 | **Compiled objects & database** | Built and stored in **`SAMCOx`** on IBM i — where `x` is your team number (e.g., `SAMCO1`, `SAMCO3`) |
 | **`SAMSRC` library** | Original read-only source members on IBM i — used **only in Lab 101** for documentation; never edited |
 
-> **Key principle**: Source lives in the **local workspace** only. `SAMCOx` contains compiled programs, service programs, and database objects — no source members. `SAMSRC` is never modified. Compiled objects always target `SAMCOx` — never the shared `SAMCO` library.
-
 This collaborative setup means your changes stay isolated in your branch until you are ready to merge, while the rest of your team works in parallel.
 
 ---
 
-## 🧪 Bob Core Labs (Optional — No IBM i Connection Required)
+## 🧪 Bob Core Labs (Optional — No IBM i Connection /PPi Required)
 
 The following foundational labs can be completed with **Bob Core** (no Premium Package needed) and require minimal or no IBM i connection. They provide the application context and modernization concepts that the Premium labs build on.
 
@@ -48,7 +53,7 @@ The following foundational labs can be completed with **Bob Core** (no Premium P
 
 1. Download and install **Bob IDE** (VS Code-based).
 2. Launch Bob IDE and sign in with your **IBM ID** — if you don't have an account, inform your instructor before the lab.
-3. Verify the **Bob** chat panel opens and the **IBM i Developer** mode is available in the mode selector.
+3. Install the **Bob Premium Package for i**  *(PPi `.vsix` provided)*  that includes IBM i Developer & Database modes, tools, workflows, skills 
 
 ### b. Install Code for IBM i Extension Pack
 
@@ -59,24 +64,24 @@ Install the following extensions from the VS Code Marketplace (or via the `.vsix
 | **Code for IBM i** | `halcyontechltd.code-for-ibmi` | IBM i connection, member browser, compile actions |
 | **IBM i Development Pack** | `HalcyonTechLtd.ibmi-dev-pack` | RPGLE language support, error highlighting |
 | **Db2 for i** | `IBM.db2-for-i` | SQL execution and result set viewer |
-| **Bob Premium Package for i** | *(PPi `.vsix` provided)* | IBM i Developer & Database modes, tools, workflows, skills |
 
-> Refer to the **Code for IBM i documentation** if you have questions during installation.
+
+> Refer to the [**Code for IBM i documentation**](https://codefori.github.io/docs/) if you have questions during installation.
+> If you installed PPi, verify the **Bob** chat panel opens and the **IBM i Developer** mode is available in the mode selector.
 
 ### c. Connection to IBM i
 
 1. In Bob IDE, open the **IBM i** panel (left sidebar).
 2. Click **New Connection** and enter the **host IP, user profile, and password** provided by your instructor.
-3. Verify the connection shows **green / connected** before proceeding.
-4. Install the **Premium Package for i** server component (PPi) on IBM i if not already done — follow the instructor's guide or the PPi documentation.
-
-> Do not share the provided credentials.
+3. Verify the connection shows **connected** before proceeding.
 
 ### d. First Contact with SAMCO
 
 Once connected, orient yourself on the IBM i system:
 
-- **Establish an SSH tunnel** if you want to use a 5250 terminal session from your workstation.
+- **Establish the connection to your IBM i** this is a standard connection to your IBM i. Refer to the `Code for i` [QuickStart]((https://codefori.github.io/docs/quickstart/) for more details.
+
+- **Establish an SSH tunnel when using IBM i on PVS** if you want to use a 5250 terminal session from your workstation. Only required if using IBM i on PowerVS (IBM Cloud) with a public IP. Please ask your instructor. (see instructions [here](https://cloud.ibm.com/docs/power-iaas?topic=power-iaas-connect-ibmi#ssh-tunneling , the instructor will share the command to run on your workstation).
 - In the **Code for IBM i** object browser, browse library **`SAMSRC`** — this contains the original source members (RPG, CL, DDS, SQL) for reference.
 - Browse library **`SAMCOx`** (your team's library) — this contains compiled programs, objects, and the database.
 - Launch **`GO SAMMNU`** on 5250 to explore the SAMCO application menu and understand the green-screen interface you will be modernizing.
@@ -87,10 +92,9 @@ Your job's library list must include `SAMCOx` so that compiled programs can find
 
 ```cl
 ADDLIBLE LIB(SAMCOx)    /* compiled objects — replace x with your team number */
-CHGCURLIB CURLIB(SAMCOx)
 ```
 
-You can also set the library list in the **Code for IBM i** connection settings under *User Library List*.
+1. Set the library list in the **Code for IBM i** connection settings under *User Library List* . If needed please refer to the [documentation](https://codefori.github.io/docs/browsers/).
 
 ---
 

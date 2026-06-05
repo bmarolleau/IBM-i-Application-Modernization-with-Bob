@@ -23,6 +23,14 @@ Use Bob's **Ask** mode to read live QSYS source members from `SAMSRC`, generate 
 
 ## Step 1: Explore the SAMSRC Library (2 minutes)
 
+1. Open Bob IDE , File , Open Folder, and open a newly created folder.
+
+2. If not already done, connect to your IBM i from the `Code for i` servers panel. 
+
+2. Use the Code for i `Object Brower/Member Browser`to list the files and objects in the library [(documentation)](https://codefori.github.io/docs/browsers/). 
+
+3. The goal of the exercise is to show you how Bob can access QSYS with the appropriate tools to give you a structured listing and information about your code: 
+
 **Switch to 💬 Ask mode** in the Bob chat panel.
 
 **Prompt:**
@@ -33,7 +41,7 @@ List all source files in library SAMSRC. For each, show the source file name and
 **What to observe:**
 - Bob uses `search_qsys` to scan `SAMSRC`
 - Returns a structured list of source file types and member counts
-
+- API Cost : around 0.06 bob coins
 ---
 
 ## Step 2: Generate Program-Level Documentation (4 minutes)
