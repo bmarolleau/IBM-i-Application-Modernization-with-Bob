@@ -1,7 +1,6 @@
-# IBM Bob Premium Package for i — Introduction
+# IBM Bob and IBM i workshop (Premium Package for i)
 
-**Internal use only**
-
+Welcome to this IBM Bob and IBM i workshop !! 
 ---
 
 ## 🎯 Mission: Modernisation for SAMCO
