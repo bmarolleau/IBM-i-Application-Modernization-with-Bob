@@ -22,7 +22,7 @@ Foundational Agentic solution for IBM i
 <br>
 <strong>IBM Bob & Premium Package for i</strong>
 <br>
-Native & optimized experience for IBM i
+Native/Optimized experience for IBM i
 </a>
 </td>
 </tr>
