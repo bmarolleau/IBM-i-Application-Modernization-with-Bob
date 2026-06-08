@@ -12,7 +12,7 @@ Hands-on labs to learn IBM i modernization using IBM Bob AI assistant. Each lab 
 <br>
 <strong>IBM Bob Core & IBM i</strong>
 <br>
-Foundational Agentic AI solution for IBM i
+Foundational Agentic solution for IBM i
 </a>
 </td>
 
