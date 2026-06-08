@@ -8,7 +8,7 @@ Hands-on labs to learn IBM i modernization using IBM Bob AI assistant. Each lab 
 <tr>
 <td align="center" width="50%">
 <a href="./lab00_ibm-bob-ibmi-labs.md">
-<img src="pics/image-bob.png" width="205">
+<img src="pics/image-bob.png" width="220">
 <br>
 <strong>IBM Bob Core & IBM i</strong>
 </a>
