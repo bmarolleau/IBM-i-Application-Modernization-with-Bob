@@ -1,6 +1,5 @@
-# IBM Bob and IBM i workshop (Premium Package for i)
+# Bob and IBM i workshop (Premium Package for i)
 
-Welcome to this IBM Bob and IBM i workshop !! 
 ---
 
 ## 🎯 Mission: Modernisation for SAMCO
@@ -11,14 +10,18 @@ As a member of the **SAMCO development team**, your mission is to modernize your
 
 You are part of a **team of developers**, all onboarded on IBM Bob, all working on the same SAMCO application.
 
+## 🧪 IBM Bob with Premium Package for i
+
 ### How the Environment Works
 
-Source can live on the system or in Git — your choice. Historically, IBM i source was stored as members inside source physical files (QSYS), compiled directly on the system. The platform originally positioned the LPAR as the source of truth. But IBM i has evolved: the compilers and OS now fully support modern Git-centric workflows, IFS stream files, and local development if you choose. Many shops still use QSYS libraries, but the platform gives you options. 
+With Premium Package for i, source, system or application artifacts can live on the system or in your local workspace/Git — your choice. 
 
-> **Key general principles with PPi**: Source can live in the **local workspace** or in **source files in QSYS**. When using PPi, you can keep your files in QSYS if you want to, and use Bob/PPi as an assistant while your developers still use SEU/PDM. **Just because you can doesn't mean you should!**.
+![alt text](pics/image-1ppi2.png)
+
+**Key general principles with Premium Package for i (PPi)**: Source can live in the **local workspace** or in **source files in QSYS**. When using PPi, you can keep your files in QSYS if you want to, and use Bob/PPi as an assistant while your developers still use SEU/PDM. **Just because you can doesn't mean you should!**.
 We really encourage you move your source files to the IFS and git, and use QSYS when it makes sense. 
 
-> **Key principle in these Labs**: Source lives in the **local workspace** only. `SAMCOn` contains compiled programs, service programs, and database objects — no source members. `SAMSRC` contains source files of the SAMCO application and is never modified. Compiled objects always target `SAMCOn` — never the shared `SAMCO` library.
+**Key principle in these Labs**: Source lives in the **local workspace** only. `SAMCOn` (n = team number)contains compiled programs, service programs, and database objects — no source members. `SAMSRC` contains source files of the SAMCO application. In the rest of the labs, compiled objects always target `SAMCOn`.
 
 The SAMCO application and database has already been built in your `SAMCOn` library so initally you don't have to build it. During the lab, you may need to modify the source code, and if you wish, you can recompile it, here using the Tobi (makei) tool. Of course, in your day to day developer activity, other build tools or scripts could be used. 
 
@@ -27,28 +30,25 @@ The SAMCO application and database has already been built in your `SAMCOn` libra
 | **Source code** | Local workspace — your Git clone on your workstation (IFS-synchronized). **This is the only place source is edited.** |
 | **Your workspace** | Your own clone of the shared Git repository — Bob reads and writes local files directly |
 | **Compiled objects & database** | Built and stored in **`SAMCOn`** on IBM i — where `n` is your team number (e.g., `SAMCO1`, `SAMCO3`) |
-| **`SAMSRC` library** | Original read-only source members on IBM i — used **only in Lab 101** for documentation; never edited |
+| **`SAMSRC` library** | Original read-only source members on IBM i — used **in Lab 101** for documentation; never edited |
 
 This collaborative setup means your changes stay isolated in your branch until you are ready to merge, while the rest of your team works in parallel.
 
 ---
+## 📋 Labs Summary
 
-## 🧪 Bob Core Labs (No IBM i Connection /PPi Required)
-
-If Premium Package is not available, the following foundational labs can be completed with **Bob Core** (no Premium Package needed) and require minimal or no IBM i connection. They provide the application context and modernization concepts that the Premium labs build on.
-
-**Please go directly to the [IBM Bob and IBM i](./README.md) landing page to get started quickly.** 
-
-| Lab | Title | File |
-|-----|-------|------|
-| Lab 0 | Discover the SAMCO Application | [lab0-rpg-project-introduction.md](lab0-rpg-project-introduction.md) |
-| Lab 1 | RPG Fixed-to-Free Conversion | [lab1-rpg-documentation-fixed-to-free.md](lab1-rpg-documentation-fixed-to-free.md) |
-| Lab 2 | UI Modernization with React & Carbon | [lab2-ui-modernization-react-carbon.md](lab2-ui-modernization-react-carbon.md) |
-| Lab 3 | DDS to SQL and RLA Refactoring | [lab3-dds-to-sql-rla-refactoring.md](lab3-dds-to-sql-rla-refactoring.md) |
-| Lab 4 | IBM i MCP Setup | [lab4-ibmi-mcp-setup-guide.md](lab4-ibmi-mcp-setup-guide.md) |
-| Lab 5 | Ansible PTF Management | [lab5-ansible-ptf-management.md](lab5-ansible-ptf-management.md) |
+| Lab | Title | Mode | Main Topic | Duration |
+|-----|-------|------|------------|----------|
+| [Lab 101](lab101-premium-discover-samco.md) | Document SAMCO with Bob | 💬 Ask | `read_member`, `search_qsys`, `/erd`, docs in `docs/` | 20 min |
+| [Lab 102](lab102-premium-fixed-to-free.md) | Convert Fixed-Format RPG to Free | ℹ️ IBM i Developer | `convert_rpg_source`, Fixed to Free Workflow, RPG skills | 20 min |
+| [Lab 103](lab103-premium-dds-to-sql-workflow.md) | Convert DDS to SQL with the Workflow | ℹ️ IBM i Developer | DDS to SQL Workflow, `db2-dds-to-ddl`, `check_sql_syntax` | 20 min |
+| [Lab 104](lab104-premium-rla-to-sql.md) | Convert RLA to SQL and Optimize | 🛢️ IBM i Database | `/erd`, `db2-sql-primer`, `db2-index-strategy` | 20 min |
+| [Lab 105](lab105-premium-impact-analysis.md) | Analyze Impact and Extend a Field Across the Full Stack | ℹ️ IBM i Developer | `QSYS2.SYSDEP`, `ALTER TABLE`, `search_ifs`, `write_stream_file`, `dds-display-files`, `rpg-embedded-sql` | 35 min |
+| [Lab 106](lab106-premium-test-rpgunit.md) | Generate RPGUnit Tests for SAMCO | ℹ️ IBM i Developer | `generate_rpg_unit_test_stub`, `run_rpg_unit_test_suite` | 20 min |
+| | | | **Total Duration** | **~2 h 15 min** |
 
 ---
+
 
 ## 🛠️ Lab Environment Setup
 
@@ -64,9 +64,9 @@ Install the following extensions from the VS Code Marketplace (or via the `.vsix
 
 | Extension | ID | Purpose |
 |-----------|----|---------|
-| **Code for IBM i** | `halcyontechltd.code-for-ibmi` | IBM i connection, member browser, compile actions |
-| **IBM i Development Pack** | `HalcyonTechLtd.ibmi-dev-pack` | RPGLE language support, error highlighting |
-| **Db2 for i** | `IBM.db2-for-i` | SQL execution and result set viewer |
+| **IBM i Development Pack**  | Includes a set of extensions for IBM i development |
+| **Code for IBM i**  | IBM i connection, member browser, compile actions (incl. in Dev Pack) |
+| **Db2 for i**  | SQL execution and result set viewer (included in Dev Pack)|
 
 
 > Refer to the [**Code for IBM i documentation**](https://codefori.github.io/docs/) if you have questions during installation.
@@ -76,15 +76,15 @@ Install the following extensions from the VS Code Marketplace (or via the `.vsix
 
 1. In Bob IDE, open the **IBM i** panel (left sidebar).
 2. Click **New Connection** and enter the **host IP, user profile, and password** provided by your instructor.
-3. Verify the connection shows **connected** before proceeding.
 
-### d. First Contact with SAMCO
+- **Establish the connection to your IBM i** this is a standard connection to your IBM i. 
 
-Once connected, orient yourself on the IBM i system:
+![alt text](pics/image-2ppi.png)  ![alt text](pics/image-4ppi.png)  ![alt text](pics/image-5ppi.png)
+ 
+ Refer to the `Code for i` [QuickStart]((https://codefori.github.io/docs/quickstart/) for more details. 
 
-- **Establish the connection to your IBM i** this is a standard connection to your IBM i. Refer to the `Code for i` [QuickStart]((https://codefori.github.io/docs/quickstart/) for more details.
 
-- **Establish an SSH tunnel when using IBM i on PVS** if you want to use a 5250 terminal session from your workstation. Only required if using IBM i on PowerVS (IBM Cloud) with a public IP. Please ask your instructor. (see instructions [here](https://cloud.ibm.com/docs/power-iaas?topic=power-iaas-connect-ibmi#ssh-tunneling , the instructor will share the command to run on your workstation).
+- **(Optional) Establish an SSH tunnel when using IBM i on PVS** if you want to use a 5250 terminal session from your workstation. Only required if using IBM i on PowerVS (IBM Cloud) with a public IP. Please ask your instructor. (see instructions [here](https://cloud.ibm.com/docs/power-iaas?topic=power-iaas-connect-ibmi#ssh-tunneling , the instructor will share the command to run on your workstation).
 - In the **Code for IBM i** object browser, browse library **`SAMSRC`** — this contains the original source members (RPG, CL, DDS, SQL) for reference.
 - Browse library **`SAMCOx`** (your team's library) — this contains compiled programs, objects, and the database.
 - Launch **`GO SAMMNU`** on 5250 to explore the SAMCO application menu and understand the green-screen interface you will be modernizing.
@@ -97,23 +97,9 @@ Your job's library list must include `SAMCOx` so that compiled programs can find
 ADDLIBLE LIB(SAMCOx)    /* compiled objects — replace x with your team number */
 ```
 
-1. Set the library list in the **Code for IBM i** connection settings under *User Library List* . If needed please refer to the [documentation](https://codefori.github.io/docs/browsers/).
+Set the library list in the **Code for IBM i** connection settings under *User Library List* . If needed please refer to the [documentation](https://codefori.github.io/docs/browsers/).
 
----
-
-## 📋 Labs Summary
-
-| Lab | Title | Mode | Main Topic | Duration |
-|-----|-------|------|------------|----------|
-| [Lab 101](lab101-premium-discover-samco.md) | Document SAMCO with Bob | 💬 Ask | `read_member`, `search_qsys`, `/erd`, docs in `docs/` | 15 min |
-| [Lab 102](lab102-premium-fixed-to-free.md) | Convert Fixed-Format RPG to Free | ℹ️ IBM i Developer | `convert_rpg_source`, Fixed to Free Workflow, RPG skills | 20 min |
-| [Lab 103](lab103-premium-dds-to-sql-workflow.md) | Convert DDS to SQL with the Workflow | ℹ️ IBM i Developer | DDS to SQL Workflow, `db2-dds-to-ddl`, `check_sql_syntax` | 20 min |
-| [Lab 104](lab104-premium-rla-to-sql.md) | Convert RLA to SQL and Optimize | 🛢️ IBM i Database | `/erd`, `db2-sql-primer`, `db2-index-strategy` | 15 min |
-| [Lab 105](lab105-premium-impact-analysis.md) | Analyze SAMCO Object Dependencies | ℹ️ IBM i Developer | `search_qsys`, `execute_sql_statement`, `db2-system-catalog` | 15 min |
-| [Lab 106](lab106-premium-test-rpgunit.md) | Generate RPGUnit Tests for SAMCO | ℹ️ IBM i Developer | `generate_rpg_unit_test_stub`, `run_rpg_unit_test_suite` | 20 min |
-| [Lab 107](lab107-premium-field-change.md) | Extend a Field Across the Full Stack | ℹ️ IBM i Developer | `ALTER TABLE`, `search_ifs`, `write_stream_file`, `dds-display-files`, `rpg-embedded-sql` | 25 min |
-| | | | **Total Duration** | **~2 h 30 min** |
-
+![alt text](pics/image-3ppi.png)
 ---
 
 ## Lab Descriptions
@@ -121,14 +107,7 @@ ADDLIBLE LIB(SAMCOx)    /* compiled objects — replace x with your team number 
 ### Lab 101 — Document SAMCO with Bob
 **Mode**: 💬 Ask | **File**: [lab101-premium-discover-samco.md](lab101-premium-discover-samco.md)
 
-*Builds on [Core Lab 0 — Discover the SAMCO Application](lab0-rpg-project-introduction.md)*
-
 Use Bob's **Ask** mode with `read_member` and `search_qsys` to read live source from the `SAMSRC` library, produce program-level and business-level documentation, and generate an architecture document with a live ERD — all saved to `docs/`.
-
-**What you'll do:**
-- Read `ART200` source from `SAMSRC` via `read_member`; explore the panel-step pattern and business rules
-- Produce `docs/ART200-documentation.md` (program-level) and `docs/SAMCO-ArticleManagement-functional.md` (business-level)
-- Generate `docs/SAMCO-architecture.md` with a live `/erd SAMCOn` Mermaid diagram
 
 **Premium features**: `read_member` · `search_qsys` · `/erd` · `search_ibm_i_docs_with_rag`
 
@@ -137,119 +116,41 @@ Use Bob's **Ask** mode with `read_member` and `search_qsys` to read live source 
 ### Lab 102 — Convert Fixed-Format RPG to Free
 **Mode**: ℹ️ IBM i Developer | **File**: [lab102-premium-fixed-to-free.md](lab102-premium-fixed-to-free.md)
 
-*Builds on [Core Lab 1 — RPG Fixed-to-Free Conversion](lab1-rpg-documentation-fixed-to-free.md)*
-
 The Premium Package adds the **`convert_rpg_source` tool** and the **Fixed to Free Conversion Workflow** — a guided multi-step process that converts each specification group in order and outputs a compile status table. Source is read from the local workspace; the converted file is written back to the workspace and compiled to `SAMCOx`.
-
-**What you'll do:**
-- Use `convert_rpg_source` to pre-convert `ART200` source
-- Launch the **Fixed to Free Conversion Workflow** for the full program
-- Review per-specification conversion (H→`Ctl-Opt`, F→`Dcl-F`, D→`Dcl-S`/`Dcl-Ds`, C→free-form)
-- Compile the converted source with `execute_compile_action` targeting `SAMCOx`
-
-**Premium features**: `convert_rpg_source` · **Fixed to Free Conversion Workflow** · `rpg-fixed-to-free` skill · `execute_compile_action`
 
 ---
 
 ### Lab 103 — Convert DDS to SQL with the Workflow
 **Mode**: ℹ️ IBM i Developer | **File**: [lab103-premium-dds-to-sql-workflow.md](lab103-premium-dds-to-sql-workflow.md)
 
-*Builds on [Core Lab 3 — DDS to SQL and RLA Refactoring](lab3-dds-to-sql-rla-refactoring.md)*
-
 The **DDS to SQL Conversion Impact Analysis Workflow** produces a full migration assessment for one DDS file before touching any code. It calls `QSYS2.GENERATE_SQL`, scans for static program references, and reports journaling, locks, and authority data as a structured impact report.
-
-**What you'll do:**
-- Launch the workflow targeting `SAMCOx` / `ARTICLE` (PF)
-- Review the generated impact report: `CREATE TABLE` DDL, relationships, program references, journaling/lock/authority status
-- Refine the DDL, validate with `check_sql_syntax`, and execute with `execute_sql_statement`
-
-**Premium features**: **DDS to SQL Conversion Impact Analysis Workflow** · `db2-dds-to-ddl`, `dds-physical-files` skills · `check_sql_syntax` · `execute_sql_statement` guardrails
 
 ---
 
 ### Lab 104 — Convert RLA to SQL and Optimize
 **Mode**: 🛢️ IBM i Database | **File**: [lab104-premium-rla-to-sql.md](lab104-premium-rla-to-sql.md)
 
-*Builds on [Core Lab 3 — DDS to SQL and RLA Refactoring](lab3-dds-to-sql-rla-refactoring.md)*
-
 The dedicated **IBM i Database** mode converts the `CHAIN`+`getArtFamDesc()` two-operation pattern to a single SQL `SELECT … JOIN`, optimizes with index guidance, and visualizes schema relationships with `/erd SAMCOx`.
-
-**What you'll do:**
-- Switch to **IBM i Database** mode; run `/erd SAMCOx` before writing any SQL
-- Convert `CHAIN arid article1` + `getArtFamDesc()` to a single `SELECT … LEFT JOIN`
-- Evaluate index strategy using the `db2-index-strategy` skill
-- Create a `SAMCOx.ARTSUM` view; validate and execute (QSYS names ≤ 10 chars)
-
-**Premium features**: 🛢️ **IBM i Database** mode · `/erd` · `db2-sql-primer`, `db2-index-strategy` skills · `check_sql_syntax`
 
 ---
 
-### Lab 105 — Analyze SAMCO Object Dependencies
+### Lab 105 — Analyze Impact and Extend a Field Across the Full Stack
 **Mode**: ℹ️ IBM i Developer | **File**: [lab105-premium-impact-analysis.md](lab105-premium-impact-analysis.md)
 
-*Builds on [Core Lab 0 — Discover SAMCO](lab0-rpg-project-introduction.md)*
-
-Uses the **live IBM i system catalog** (`QSYS2.SYSDEP`, `QSYS2.SYSCST`) to perform dependency analysis: which programs depend on `ARTICLE`, which fields are shared, and the recompile impact of adding a new field.
-
-**What you'll do:**
-- Find all objects dependent on `ARTICLE` in `SAMCOx` using `QSYS2.SYSDEP`
-- Map foreign key relationships with `QSYS2.SYSCST`
-- Search the local workspace for references to field `ARSALEPR` across SAMCO source files
-- Ask: *"If I add `ARDISCOUNT` to ARTICLE, which programs need recompiling?"*
-- Save a dependency impact report as a markdown file in the workspace
-
-**Premium features**: `db2-system-catalog`, `rpg-code-review` skills · `execute_sql_statement` · `search_qsys` · `write_stream_file`
+Uses the **live IBM i system catalog** (`QSYS2.SYSDEP`, `QSYS2.SYSCST`) to build a full dependency and recompile impact report for `ARTICLE` — then executes the change end-to-end: `ALTER TABLE` to widen `ARDESC`, display file update (enforcing 24×80 screen constraints), RPG program source update, and recompile of both DSPF and program targeting `SAMCOx`.
 
 ---
 
 ### Lab 106 — Generate RPGUnit Tests for SAMCO
 **Mode**: ℹ️ IBM i Developer | **File**: [lab106-premium-test-rpgunit.md](lab106-premium-test-rpgunit.md)
 
-*Builds on [Core Lab 0](lab0-rpg-project-introduction.md) (business rules) and [Core Lab 1](lab1-rpg-documentation-fixed-to-free.md) (code analysis)*
-
 After modernizing SAMCO code, verify correctness with automated tests. `generate_rpg_unit_test_stub` reads exported procedures from the local workspace, generates scaffold test code, and recommends a storage location. `run_rpg_unit_test_suite` compiles and executes against `SAMCOx`.
-
-**What you'll do:**
-- Identify exported procedures in [`SAMCO/QRPGLESRC/ART300-Function_Article.RPGLE`](SAMCO/QRPGLESRC/ART300-Function_Article.RPGLE)
-- Scaffold test cases for `GetArtDesc`, `GetArtRefSalPrice`, and `ExistArt` with `generate_rpg_unit_test_stub`
-- Fill in test logic based on business rules from Lab 101
-- Compile and run the tests with `*LINE` code coverage
-
-**Premium features**: `generate_rpg_unit_test_stub` · `run_rpg_unit_test_suite` · `rpg-procedures-functions` skill · `*LINE` code coverage
-
----
-
-### Lab 107 — Extend a Field Across the Full Stack
-**Mode**: ℹ️ IBM i Developer | **File**: [lab107-premium-field-change.md](lab107-premium-field-change.md)
-
-*Builds on [Core Lab 3 — DDS to SQL and RLA Refactoring](lab3-dds-to-sql-rla-refactoring.md)*
-
-A field-length change touches every layer: the database table, display file, RPG program, and SQL views. This lab lets Bob drive the impact analysis, edits (on local workspace files), and recompile cycle — targeting `SAMCOx` at each step.
-
-**Target**: article description field `ARDESC` in `SAMCOx.ARTICLE` — currently 30 characters, extended to 50.
-
-| Layer | What changes | Tools used |
-|-------|-------------|------------|
-| Database | `ARDESC` 30 → 50 in `SAMCOx.ARTICLE` | `execute_sql_statement` (`ALTER TABLE`) + `check_sql_syntax` |
-| Display file | Field width in local [`ART200D-Work_with_Article.DSPF`](SAMCO/QDDSSRC/ART200D-Work_with_Article.DSPF) | `write_stream_file` + `dds-display-files` skill |
-| RPG program | Length assumptions in local [`ART200-Work_with_article.PGM.SQLRPGLE`](SAMCO/QRPGLESRC/ART200-Work_with_article.PGM.SQLRPGLE) | `write_stream_file` + `rpg-embedded-sql` skill |
-| Compile | Recompile DSPF then program to `SAMCOx` | `get_compile_actions` + `execute_compile_action` |
-
-**What you'll do:**
-- Ask Bob: *"Search the local workspace and SAMCOx catalog for all references to ARDESC"*
-- Generate and validate `ALTER TABLE SAMCOx.ARTICLE ALTER COLUMN ARDESC SET DATA TYPE CHAR(50)`
-- Read and edit the local DSPF and SQLRPGLE files — saved with `write_stream_file`
-- Recompile DSPF first, then the program, to `SAMCOx`
-
-**Premium features**: `search_ifs` + `execute_sql_statement` for impact analysis · `check_sql_syntax` · `dds-display-files`, `rpg-embedded-sql` skills · `execute_compile_action`
 
 ---
 
 ## IBM i Developer Mode (ℹ️)
 
 **Purpose**: Explain, generate, compile, document, test, and modernize IBM i code.
-
-**Used in**: [Lab 102](lab102-premium-fixed-to-free.md) · [Lab 103](lab103-premium-dds-to-sql-workflow.md) · [Lab 105](lab105-premium-impact-analysis.md) · [Lab 106](lab106-premium-test-rpgunit.md) · [Lab 107](lab107-premium-field-change.md)
 
 Bob acts as an expert in RPG (OPM and ILE), CL, DDS, SQL, and COBOL. When connected, your **library list, OS version, CCSID, and home directory** are automatically injected into every conversation.
 
@@ -291,7 +192,7 @@ Queries the `QSYS2` catalog and generates a **Mermaid ERD** showing tables, colu
 
 ---
 
-## Workflows
+## Workflows (non exhaustive list)
 
 ### Workflow 1 — DDS to SQL Conversion Impact Analysis
 

@@ -3,11 +3,13 @@
 ## Overview
 Use `generate_rpg_unit_test_stub` to scaffold test cases for exported procedures in the `ART300` service program module, fill in test logic, and run the tests with code coverage against `SAMCOn`.
 
+**NOTE:** PPI includes workflows that automates the whole 'Test Generation' process, described here in this lab. The goal of this document is to show how to generate unit tests with Bob, with a few iterations and adjustments but in a real environment, use the appropriate Bob Worflow. 
+
 **Duration**: 20 minutes  
 **Difficulty**: Intermediate  
 **Mode**: ℹ️ IBM i Developer  
 **Source**: Local workspace (`SAMCO/QRPGLESRC/`)  
-**Build target**: `SAMCOn`
+**Build target**: `SAMCOn` / `SAMCOnT`
 
 > **Local workspace**: Bob reads the source file from the **local Git clone**. Test stubs are written to the workspace. The test suite is compiled and run against `SAMCOn`.
 
@@ -18,6 +20,26 @@ Use `generate_rpg_unit_test_stub` to scaffold test cases for exported procedures
 - **Code for IBM i** extension connected to your IBM i system
 - `SAMCOn` in your library list — RPGUnit library also required
 - [Lab 101](lab101-premium-discover-samco.md) completed (business rules context)
+
+### Install RPGUnit
+
+1. **Install IBM i Testing Extension**
+   - Open VS Code Extensions
+   - Search for "IBM i Testing"
+   - Click Install
+
+2. **Install RPGUnit Component to IBM i**
+   - Open Code for IBM i connection settings
+   - Navigate to "Components" tab
+   - Click "Add Component"
+   - Select "RPGUnit"
+   - Click Install
+
+3. **Update Library List**
+
+Update library list to: SAMCOn, SAMCOnT (to be created), RPGUNIT, QDEVTOOLS
+
+![alt text](pics/image-rpgunitlist.png)
 
 ## Development Approach
 
@@ -42,40 +64,20 @@ IFS (Integrated File System)
 ### Test Code Location
 ```
 IBM i Libraries (QSYS)
-└── SAMCOnTEST/                                          ← Test library
-    └── QRPGLESRC/                                       ← Test source file
-        └── ART300T.rpgle                                ← Test suite member
+└── SAMCOnT/                                          ← Test library
+    └── QTESTSRC/                                       ← Test source file
+        └── ART300T.SQLPRGLE                                ← Test suite member
 ```
-
-### Install RPGUnit (Manual Process)
-
-1. **Install IBM i Testing Extension**
-   - Open VS Code Extensions
-   - Search for "IBM i Testing"
-   - Click Install
-
-2. **Install RPGUnit Component to IBM i**
-   - Open Code for IBM i connection settings
-   - Navigate to "Components" tab
-   - Click "Add Component"
-   - Select "RPGUnit"
-   - Click Install
-
-3. **Update Library List**
-
-Update my library list to: SAMCOn, SAMCOnTEST, RPGUNIT, QDEVTOOLS
-
-
 
 ### Library Organization
 
 ```
 ┌─────────────────────────────────────────────────┐
 │ SAMCOn          → Application library           │
-│                   (*PGM, *SRVPGM, *FILE)       │
+│                   (*PGM, *SRVPGM, *FILE)        │
 ├─────────────────────────────────────────────────┤
-│ SAMCOnTEST      → Test library                  │
-│                   (*SRVPGM for tests)           │
+│ SAMCOnT → Test library                          │
+│  QTESTSRC                (*SRVPGM for tests)    │
 ├─────────────────────────────────────────────────┤
 │ RPGUNIT         → RPGUnit framework             │
 │ QDEVTOOLS       → Development tools             │
@@ -88,8 +90,8 @@ Update my library list to: SAMCOn, SAMCOnTEST, RPGUNIT, QDEVTOOLS
 |------|---------|----------|
 | Application Source | `ART300-Function_Article.RPGLE` | IFS: `SAMCO/QRPGLESRC/` |
 | Application Object | `ART300` (*SRVPGM) | Library: `SAMCO1` |
-| Test Source | `ART300T.rpgle` | Library: `SAMCO1TEST/QRPGLESRC` |
-| Test Object | `ART300T` (*SRVPGM) | Library: `SAMCO1TEST` |
+| Test Source | `ART300T.rpgle` | Library: `SAMCO1T/QTESTSRC` |
+| Test Object | `ART300T` (*SRVPGM) | Library: `SAMCO1` |
 ---
 
 ## Step 1: Identify Exported Procedures (3 minutes)
@@ -114,8 +116,8 @@ Identify all exported procedures: name, parameters (type and usage), return type
 
 **Prompt:**
 ```
-Generate RPGUnit test stubs for GetArtDesc, GetArtRefSalPrice, and ExistArt from SAMCO/QRPGLESRC/ART300-Function_Article.RPGLE or Source member: /SAMCOSRC/QRPGLESRC/ART300.rpgle
-Focus on these procedures: GetArtDesc, GetArtRefSalPrice, GetArtStockPrice
+Generate RPGUnit test stubs for GetArtDesc, GetArtRefSalPrice, and ExistArt from  Source member: /SAMSRC/QRPGLESRC/ART300.rpgle
+Focus on these procedures: GetArtDesc, GetArtRefSalPrice, GetArtStockPrice. SAMSRC is in QSYS.
 
 Use generate_rpg_unit_test_stub. Show the recommended storage location and generated stub code.
 ```
@@ -143,16 +145,18 @@ Fill in test assertions for each procedure — one positive test and one negativ
 
 **Prompt:**
 ```
-Write the completed test suite to SAMCO/QTESTSRC/ART300.test.rpgle.
+Write the completed test suite to library SAMCO20T file QTESTSRC member ART300T.SQLRPGLE
 ```
 
 ---
 
 ## Step 4: Compile the Test Suite (3 minutes)
 
+Confirm that you want to compile the test suite or use a prompt like: 
+
 **Prompt:**
 ```
-Get compile actions for SAMCO/QTESTSRC/ART300.test.rpgle and compile it to SAMCOn.
+Get compile actions for SAMCOnT/QTESTSRC/ART300T.SQLRPGLE and compile it to SAMCOnT. before compiling Add /QSYS.LIB/RPGUNIT.LIB/QINCLUDE.FILE and IFS path SAMCO/QPROTOSRC to INCDIR.
 ```
 
 **What to observe:**
@@ -165,11 +169,13 @@ Common issues:
 
 ---
 
+![alt text](pics/image-rpgunit.png)
+
 ## Step 5: Run the Tests with Code Coverage (4 minutes)
 
 **Prompt:**
 ```
-Run the RPGUnit test suite SAMCO/QTESTSRC/ART300.test.rpgle with *LINE code coverage. Show test results, coverage percentage, and any failures with details.
+Run the RPGUnit test suite SAMCOnT/QTESTSRC/ART300 with *LINE code coverage. Show test results, coverage percentage, and any failures with details.
 ```
 
 **What to observe:**
@@ -201,9 +207,3 @@ Explain the failure and identify the correct expected value from the ART300 impl
 - Tests live in the Git repo (`SAMCO/QTESTSRC/`) — shareable across the team
 
 ---
-
-## Next Steps
-
-- Proceed to [Lab 107](lab107-premium-field-change.md) — extend a field across the full stack
-- Add edge case tests: blank ARDESC, zero stock, invalid VAT code
-- Generate test stubs for `CUS300.RPGLE` or `FAM300.RPGLE`

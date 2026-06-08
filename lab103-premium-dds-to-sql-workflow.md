@@ -1,135 +1,143 @@
-# Lab 103: Convert DDS to SQL with the Workflow
+# Lab 103: DDS to SQL Conversion Impact Analysis
 
 ## Overview
-Use the **DDS to SQL Conversion Impact Analysis Workflow** to assess the migration of the ARTICLE physical file to SQL DDL — generating an impact report, refining the DDL, and executing it in `SAMCOn`.
+Use the **DDS to SQL Conversion** workflow built into the IBM Bob Premium Package for i to analyse the `ARTICLE` physical file, generate its SQL DDL equivalent, review the impact report, and ask Bob to create the table in your `SAMCOn` library.
 
-**Duration**: 20 minutes
-**Difficulty**: Intermediate
-**Mode**: ℹ️ IBM i Developer
-**Source**: Local workspace (`SAMCO/QDDSSRC/`) + live IBM i catalog
+**Duration**: 20 minutes  
+**Difficulty**: Intermediate  
+**Mode**: ℹ️ IBM i Developer  
 **Build target**: `SAMCOn`
 
-> **Local workspace**: Bob reads DDS source from the **local Git clone** (`SAMCO/QDDSSRC/`). The workflow queries the live IBM i catalog for dependency and object status analysis. The resulting SQL table is created in `SAMCOn` — which contains database objects and compiled programs, not source members.
+> The workflow runs 5 automated steps: it collects the input, calls `QSYS2.GENERATE_SQL`, queries database relationships and static program references via `DSPPGMREF`, collects object status/journaling/locks/authority, then renders a full impact report — all before you write a single line of SQL.
 
 ---
 
 ## Prerequisites
-- Bob IDE with **IBM Bob Premium Package for i** installed
+- **IBM Bob Premium Package for i** extension installed and active in Bob
 - **Code for IBM i** extension connected to your IBM i system
 - **Db2 for i** extension installed
 - `SAMCOn` in your library list (`n` = your team number)
-- [Lab 101](lab101-premium-discover-samco.md) completed (SAMCO context)
+- [Lab 101](lab101-premium-discover-samco.md) completed
 
 ---
 
-## Step 1: Launch the DDS to SQL Conversion Workflow (2 minutes)
+## Step 1: Launch the Workflow (1 minute)
 
-1. Open the **Bob Workflows** panel in Bob IDE
-2. Select **"DDS to SQL Conversion Impact Analysis"** → **Start Workflow**
-3. In the form, enter:
-   - **Library**: `SAMCOn` (where the compiled `ARTICLE` physical file lives)
-   - **Object**: `ARTICLE`
-   - **Logical File?**: No
+1. In the Bob chat panel, click the **Workflows** icon (⚡) in the toolbar
+2. Select **"DDS to SQL Conversion Impact Analysis"**
+3. A form panel appears — fill in:
+   - **Library Name**: `SAMCO20`
+   - **Object Name**: `ARTICLE`
+   - **Is this a Logical File (LF)?**: leave unchecked (it is a PF)
+4. Click **Analyse**
 
-**What to observe:**
-- Workflow validates the object exists via `execute_cl_command` (`DSPOBJD`)
-- Auto-loads `dds-physical-files` and `db2-dds-to-ddl` skills
+**What happens:** Bob validates that you are connected to IBM i (if not, the workflow will not start), then moves through each step automatically.
 
 ---
 
-## Step 2: Review the Generated DDL (4 minutes)
+## Step 2: Watch the Generated SQL DDL (3 minutes)
 
-The workflow calls `QSYS2.GENERATE_SQL` and returns a `CREATE TABLE` statement with `LABEL ON`, CCSID, and index options.
+The workflow calls:
+```sql
+CALL QSYS2.GENERATE_SQL('ARTICLE', 'SAMCO20', 'TABLE',
+    ADDITIONAL_INDEX_OPTION => '1',
+    CREATE_OR_REPLACE_OPTION => '1',
+    CCSID_OPTION => '1',
+    LABEL_OPTION => '1',
+    CONSTRAINT_OPTION => '2')
+```
+
+**What to observe in the chat:**
+- A `CREATE OR REPLACE TABLE` statement with all 14 columns, their types and lengths
+- A `LABEL ON` block reproducing the `COLHDG` and `TEXT` values from the DDS source
+- A `CREATE INDEX` for any keyed access path defined in the DDS
+
+> If `GENERATE_SQL` fails, the workflow asks *"Type `yes` to continue to impact analysis anyway"* — type `yes` to keep going and still see the relationship/status report.
+
+---
+
+## Step 3: Review the Impact Report (8 minutes)
+
+After generating the DDL the workflow automatically collects relationships, static program references, object status, journaling, locks, and authority — then renders the full report.
+
+### Database Relationships
+Bob queries `SYSTOOLS.RELATED_OBJECTS` for `SAMCO20/ARTICLE`. Look for any logical files or views that depend on the physical file.
+
+### Static Program References
+Bob runs `DSPPGMREF` across every library in your library list and queries `QTEMP/PGMREF` for references to `ARTICLE`. Expected results include programs like `ART200`, `ART300`, `ART400`.
+
+| Library | Program | Type |
+|---------|---------|------|
+| SAMCO20 | ART200  | *PGM |
+| SAMCO20 | ART300  | *PGM |
+
+### Object Status & Journaling
+Bob queries `QSYS2.OBJECT_STATISTICS` and `QSYS2.JOURNALED_OBJECTS`. Note whether journaling is enabled — the replacement SQL table must replicate this setting.
+
+### Object Locks & Authorities
+Bob reports any active locks (`QSYS2.OBJECT_LOCK_INFO`) and the full authority matrix (`QSYS2.OBJECT_PRIVILEGES`). Any `*PUBLIC` or user-specific grants must be recreated after the DDL is executed.
+
+> ⚠️ **RRN note**: The report footer reminds you that if any program uses relative record numbers to access `ARTICLE`, the replacement table must **not** have `REUSEDLT(*YES)`. The default for a SQL-created table is already `*NO`.
+
+---
+
+## Step 4: Ask Bob to Refine and Execute the DDL (6 minutes)
+
+Once the workflow completes, continue the conversation to refine and apply the DDL.
 
 **Prompt:**
 ```
-Review the generated DDL for ARTICLE. Suggest:
-1. Any CHAR fields that should be VARCHAR
-2. Missing foreign key constraints (ARFAMCOD → FAMILLY, ARVAT → VATDEF)
-3. A CHECK constraint for the soft-delete flag ARDEL
+Looking at the generated DDL for ARTICLE, add:
+1. DEFAULT '0' on the ARDEL column
+2. CHECK (ARDEL IN ('0', '1')) constraint on ARDEL
+
+Then validate the result with check_sql_syntax. If it passes, create the table as
+SAMCO20.ARTICLE_NEW and ask me to confirm before executing.
 ```
 
 **What to observe:**
-- Bob suggests `ARDESC CHAR(30)` → `VARCHAR(30)` for variable-length descriptions
-- Recommends `FOREIGN KEY (ARFAMCOD) REFERENCES FAMILLY(FAID)`
-- Suggests `CHECK (ARDEL IN ('0', '1'))`
+- Bob edits the `CREATE TABLE` statement in-chat
+- Calls `check_sql_syntax` — must report **Syntax OK** before proceeding
+- Presents: *"This will create table ARTICLE_NEW in SAMCO20. Approve?"*
+- After your confirmation, executes with `execute_sql_statement`
 
 ---
 
-## Step 3: Review the Impact Report (5 minutes)
-
-The workflow generates a full impact report covering:
-
-**Database relationships** (from `SYSTOOLS.RELATED_OBJECTS`):
-
-| Related Object | Type | Relationship |
-|---------------|------|--------------|
-| ORDER | *FILE | Foreign key via ORDERLIN |
-| FAMILLY | *FILE | ARTICLE.ARFAMCOD → FAMILLY.FAID |
-| VATDEF | *FILE | ARTICLE.ARVAT → VATDEF.VATCOD |
-
-**Static program references** (from `DSPPGMREF` across `SAMCOn`):
-
-| Program | Reference Type |
-|---------|---------------|
-| ART200 | Externally-described file |
-| ART300 | SQL embedded SELECT |
-| ART400 | SQL embedded SELECT |
-
-**Object status**: journaling, locks, and authority matrix — the new SQL table must replicate these settings.
-
-> **Note**: If the report shows RRN-based access in ART200, review the `REUSEDLT` warning before executing.
-
----
-
-## Step 4: Refine, Validate, and Execute (5 minutes)
+## Step 5: Verify the Result (2 minutes)
 
 **Prompt:**
 ```
-Refine the generated DDL:
-1. Change ARDESC to VARCHAR(50)
-2. Add CHECK (ARDEL IN ('0', '1'))
-3. Add FOREIGN KEY constraints for ARFAMCOD and ARVAT
-
-Validate with check_sql_syntax, then execute in SAMCOn with guardrail approval.
+Query QSYS2.SYSCOLUMNS for ARTICLE_NEW in SAMCO20.
+Show column name, data type, length, and default value.
 ```
 
-**What to observe:**
-- Bob modifies the DDL and calls `check_sql_syntax` — must return **Syntax OK** before proceeding
-- Presents: *"This will create table ARTICLE in SAMCOn. Approve?"*
-- Executes with `execute_sql_statement` after approval
-
----
-
-## Step 5: Verify the Migration (2 minutes)
-
-**Prompt:**
-```
-Query QSYS2.SYSCOLUMNS to confirm the ARTICLE table was created correctly in SAMCOn. Show column names, data types, and lengths.
-```
+Expected: 14 rows — matching the original `ARTICLE` columns — with `ARDEL` showing `DEFAULT '0'`.
 
 ---
 
 ## ✅ Success Criteria
 
-- [ ] Workflow generated a full impact report for ARTICLE (DDL, relationships, program references, authority)
-- [ ] DDL refined with VARCHAR, CHECK, and FOREIGN KEY constraints
-- [ ] `check_sql_syntax` validated the DDL before execution
-- [ ] `CREATE TABLE` executed with guardrail approval in `SAMCOn`
-- [ ] `QSYS2.SYSCOLUMNS` confirmed the correct structure
+- [ ] Workflow form accepted `SAMCO20` / `ARTICLE` and proceeded through all 5 steps
+- [ ] Generated DDL shown in chat with `LABEL ON` and index statements
+- [ ] Impact report listed database relationships, static program references, journaling status, locks, and authority
+- [ ] DDL refined with `DEFAULT` and `CHECK` on `ARDEL`; `check_sql_syntax` returned OK
+- [ ] `CREATE TABLE SAMCO20.ARTICLE_NEW` executed after approval
+- [ ] `QSYS2.SYSCOLUMNS` confirmed 14 columns with correct types
 
 ---
 
 ## Key Takeaways
 
-- Impact-first migration: analyze dependencies before touching any code
-- `QSYS2.GENERATE_SQL` produces DDL with `LABEL ON`, CCSID, and indexes automatically
-- `SYSTOOLS.RELATED_OBJECTS` + `DSPPGMREF` reveal all dependent objects
-- Guardrails require explicit approval for destructive SQL — no accidental drops
+- The workflow automates the most tedious part of DDS migration: finding every dependent object before you touch anything
+- `QSYS2.GENERATE_SQL` produces complete DDL including `LABEL ON`, CCSID, and indexes — not just a bare `CREATE TABLE`
+- `SYSTOOLS.RELATED_OBJECTS` + `DSPPGMREF` together cover both database-level and program-level dependencies
+- SQL DDL lets you add `DEFAULT`, `CHECK`, and `FOREIGN KEY` constraints that DDS cannot express
+- Always check journaling and authority on the original object — the new SQL table starts with neither
 
 ---
 
 ## Next Steps
 
-- Proceed to [Lab 104](lab104-premium-rla-to-sql.md) — convert RLA operations to SQL in program code
-- Run the workflow on a logical file (e.g., `ARTICLE1.LF` in `SAMCO/QDDSSRC/`)
+- Proceed to [Lab 104](lab104-premium-rla-to-sql.md) — convert RLA file operations to embedded SQL in RPG programs
+- Run the workflow again on `SAMCO20/FAMILLY` (a simpler PF) to compare impact reports
+- Run the workflow on `SAMCO20/ARTICLE1` and check **Is this a Logical File (LF)?** — observe how `GENERATE_SQL` produces a `CREATE VIEW` instead

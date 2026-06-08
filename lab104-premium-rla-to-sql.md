@@ -84,11 +84,15 @@ For this LEFT JOIN query on ARTICLE and FAMILLY, evaluate the index strategy. Sh
 **What to observe:**
 - Bob confirms ARID and FAID already exist as primary keys
 - Recommends a secondary index on `ARFAMCOD` for join performance
+- Used skill **db2-index-strategy**, skill **db2-performance-primer**
 
 **Prompt:**
 ```
 Generate and validate the CREATE INDEX statement, then execute it in SAMCOn with guardrail approval.
 ```
+
+**What to observe:**
+- The guardrail can block the execution — the DDL approval must be confirmed at the tool level.
 
 Bob uses `check_sql_syntax` then `execute_sql_statement` after approval:
 ```sql
