@@ -1,154 +1,172 @@
-# Lab 101: Discover SAMCO with IBM i Developer Mode
+# Lab 101: Document SAMCO with Bob
 
 ## Overview
-Explore the SAMCO application using the **IBM i Developer** mode's built-in tools and automatically loaded skills. Learn how Bob reads live IBM i source members, explains business logic, and uses RAG-powered documentation to answer technical questions on the fly.
+Use Bob's **Ask** mode to read live QSYS source members from `SAMSRC`, generate program-level documentation, produce a functional business document, and create an architecture document with an ERD — all saved as markdown in the `docs/` directory.
 
-**Duration**: 15 minutes  
+**Duration**: 30 minutes  
 **Difficulty**: Beginner  
-**Mode**: ℹ️ IBM i Developer  
-**What You'll Learn**: Navigate a live IBM i codebase, generate architecture diagrams, and use inline documentation retrieval
+**Mode**: 💬 Ask  
+**Source**: `SAMSRC` library on IBM i (QSYS)  
+**Output**: Markdown files in `docs/`
+
+> ⚠️ **Lab 101 reads source directly from `SAMSRC` on IBM i** using `read_member` and `search_qsys` — for documentation purposes only. `SAMSRC` is never modified. From **Lab 102 onwards**, all source work uses the **local workspace** (your Git clone) exclusively — `SAMCOn` contains only compiled objects and database tables.
 
 ---
 
 ## Prerequisites
 - Bob IDE with **IBM Bob Premium Package for i** installed
 - **Code for IBM i** extension connected to your IBM i system
-- Libraries `SAMSRCn` and `SAMCOn` configured (where `n` is your student number)
-- Library list set with both libraries
-
-> **Premium Package feature**: The `read_member`, `search_qsys`, `/erd` command, and `search_ibm_i_docs_with_rag` tool are only available in **Bob Premium Package for i**, not in Bob Core.
+- `SAMCOn` in your library list (`n` = your team number)
+- `SAMSRC` library accessible
 
 ---
 
-## Use Case: Understand the SAMCO Business Domain
+## Step 1: Explore the SAMSRC Library (2 minutes)
 
-SAMCO is a sample order management system with articles, customers, providers, and orders. We'll use Bob to discover its structure, business rules, and database schema without reading source code manually.
+1. Open Bob IDE , File , Open Folder, and open a newly created folder. Your workspace should be empty at that stage. 
+
+2. If not already done, connect to your IBM i from the `Code for i` servers panel. This is also where you can adjust our Library list and add your SAMCOn library. (n = team number).
+
+2. Use the Code for i `Object Brower/Member Browser`to list the files and objects in the library [(documentation)](https://codefori.github.io/docs/browsers/). 
+
+3. The goal of the exercise is to show you how Bob can access QSYS with the appropriate tools to give you a structured listing and information about your code: 
+
+**Switch to 💬 Ask mode** in the Bob chat panel.
+
+**Prompt:**
+```
+List all source files in library SAMSRC. For each, show the source file name and its typical content type (QRPGLESRC, QDDSSRC, QCLSRC, QSQLSRC, etc.).
+```
+
+**What to observe:**
+- Bob uses `search_qsys` to scan `SAMSRC`
+- Returns a structured list of source file types and member counts
+- API Cost : around 0.06 bob coins
+---
+
+## Step 2: Generate Program-Level Documentation (4 minutes)
+
+> ℹ️ In QSYS, member names are limited to **10 characters**. The member for `ART200` is named `ART200` in source file `QRPGLESRC` of library `SAMSRC`.
+
+**Prompt:**
+```
+Read member ART200 from SAMSRC/QRPGLESRC.
+
+Generate concise technical documentation covering:
+1. Program purpose and display file used
+2. The panel-step state machine pattern (panel, step01, step02 variables with values: prp/lod/dsp/key/chk/act)
+3. Key business rules (VAT calculation, soft-delete with ARDEL field, article validation)
+4. Files used (input, output, update)
+
+Save as docs/ART200-documentation.md in the local workspace.
+```
+
+**What to observe:**
+- Bob uses `read_member` with library=`SAMSRC`, file=`QRPGLESRC`, member=`ART200`
+- Explains the panel/step controller pattern and business rules
+- Uses `write_stream_file` to save `docs/ART200-documentation.md`
+- API Cost : around 0.35 bob coins
+
 
 ---
 
-## Step 1: Navigate the SAMCO Library (3 minutes)
+## Step 3: Generate Functional Business Documentation (4 minutes)
 
-**Switch to IBM i Developer mode** in the Bob chat panel (select the mode dropdown).
-
-**Prompt for Bob:**
+**Prompt:**
 ```
-I want to discover the SAMCO application. 
+Based on the ART200 program and the ARTICLE, FAMILLY, and VATDEF members in SAMSRC/QRPGLESRC and SAMSRC/QDDSSRC:
 
-First, list all source files in library SAMSRCn. Show me:
-- The source file names
-- Object types (QRPGLESRC, QDDSSRC, etc.)
-- Brief description of each file's purpose
+Generate a functional business document for the "Article Management" business function:
+- What the function does (business perspective)
+- Key business rules (VAT, soft-delete, price management)
+- Screens involved and their purpose
+- Data entities managed
+
+Save as docs/SAMCO-ArticleManagement-functional.md in the local workspace.
 ```
 
-**What to Look For:**
-- Bob uses `search_qsys` to scan the library
-- Auto-loads the `dds-primer-basics` and `rpg-primer-basics` skills
-- Returns a structured list with QRPGLESRC (programs), QDDSSRC (DDS files), QCLSRC (CL), etc.
+**What to observe:**
+- Bob reads additional members via `search_qsys` and `read_member` on `SAMSRC`
+- Documentation is written in business-friendly language, not technical jargon
+- Saved to `docs/SAMCO-ArticleManagement-functional.md`
+- API Cost : around 0.7 bob coins
 
 ---
+## Step 4: Generate Business Rules Extraction (5 minutes)
 
-## Step 2: Read a Key Program (4 minutes)
+**Mode**: 💬 Agent
 
-**Prompt for Bob:**
-```
-Read the member ART200-Work_with_article.PGM.SQLRPGLE from SAMSRCn/QRPGLESRC.
+Generate a functional business document using the `Business Rules Extraction` workflow.
+- Click on the `Start Workflow` top right button
+- Select the workflow `Business Rules Extraction - Library List`
+- Choose `LIBRARY`: `SAMSRC`; `SOURCE FILE`: `QRPGLESRC`; `MEMBER`: `ART300` , then Continue.
 
-Explain:
-1. What this program does
-2. What the panel-step state machine pattern is (panel, step01, step02 variables)
-3. What business rules govern the article lifecycle (VAT calculation, soft-delete ARDEL field)
+**What to observe:**
+- Bob uses a guided workflow to get the necessary data and generate a complete report describing a business function
+- Documentation is written in business-friendly language, not technical jargon
+-  Saved to `business-rules-ART300-xxxx.md` in the IFS
+- API Cost : around 0.5 bob coins
 
-Keep it concise.
-```
-
-**What to Look For:**
-- Bob uses `read_member` to fetch the source from IBM i
-- The `rpg-primer-basics` and `rpg-embedded-sql` skills are auto-loaded
-- Bob explains the panel/step variables control which screen and action (PRP/DSP/VAL) executes
-- VAT is calculated from `VATDEF` table, soft-delete uses `ARDEL='1'` instead of physical deletion
-
-> **Premium vs. Core**: Bob Core requires you to paste the source code. Premium Package **reads it live** from the connected IBM i.
 
 ---
+## Step 5: Generate Architecture Document and ERD (5 minutes)
 
-## Step 3: Generate an ERD (3 minutes)
+**Mode**: 💬 IBM i Developer
 
-**Prompt for Bob:**
+**Prompt:**
+```
+Generate a full architecture document for the SAMCO application.
+with Key business rules summary (VAT, soft-delete, order lifecycle).
+
+Generate visual architecture diagrams in Mermaid format showing:
+1. Entity Relationship Diagram (ERD) with all database tables
+2. Application layer architecture from UI to database
+3. Business process flows (order processing workflow)
+4. Data flow diagrams (inventory management cycle)
+5. System integration architecture
+6. Menu structure hierarchy
+7. Technology stack overview
+
+Create this architecture document with diagrams, all in a separate markdown file in the docs directory. Save as docs/SAMCO-architecture.md in the local workspace.
+```
+
+Then run the `/erd` command to add a live schema diagram (add the erd slash command at the end of the prompt above): 
+
 ```
 /erd SAMCOn
 ```
 
-**What to Look For:**
-- Bob queries `QSYS2.SYSTABLES`, `SYSCOLUMNS`, `SYSCST`, `SYSREFCST` to build the schema
-- A **Mermaid ERD diagram** is generated showing:
-  - All tables (ARTICLE, CUSTOMER, ORDERHDR, ORDERLIN, FAMILLY, VATDEF, PROVIDER)
-  - Primary keys (ARID, CUID, ORID, etc.)
-  - Foreign key relationships (ORDERLIN → ARTICLE, ORDERHDR → CUSTOMER, etc.)
-  - Column data types (PACKED, CHAR, DATE)
+**What to observe:**
+- Bob queries `QSYS2.SYSTABLES`, `SYSCOLUMNS`, `SYSCST` to build the ERD
+- A **Mermaid ERD** is generated showing tables, primary keys, and foreign key relationships
+- Both architecture text and ERD are saved to `docs/SAMCO-architecture.md`
+- API Cost : around 6.0 bob coins
 
-> **Premium feature**: The `/erd` slash command is exclusive to Bob Premium Package for i.
-
----
-
-## Step 4: Ask a Documentation Question Mid-Task (3 minutes)
-
-**Prompt for Bob:**
-```
-What is the panel-step pattern in RPG, and where is it documented in IBM i guides?
-```
-
-**What to Look For:**
-- Bob uses `search_ibm_i_docs_with_rag` to search IBM i documentation semantically
-- Returns excerpts from ILE RPG programmer guides explaining state machine patterns, indicators, and structured control flow
-- Provides page references or section links for further reading
-
-> **Premium feature**: `search_ibm_i_docs_with_rag` is only available in Premium Package modes, not in Bob Core.
-
----
-
-## Step 5: Generate an Architecture Document (2 minutes)
-
-**Prompt for Bob:**
-```
-Generate a markdown architecture document for SAMCO covering:
-- Application purpose
-- Database schema (tables and relationships from the ERD)
-- Key business rules (VAT, soft-delete, order lifecycle)
-- Program inventory (maintenance vs. reporting programs)
-
-Save it as a file in the IFS.
-```
-
-**What to Look For:**
-- Bob synthesizes the information from previous steps
-- Uses `write_stream_file` to save `/home/<youruser>/SAMCO_Architecture.md` on the IBM i IFS
-- The document includes the ERD, business rules explained earlier, and program descriptions
+> **Tip**: Try asking inline: *"What is the panel-step pattern in RPG?"* — Bob uses `search_ibm_i_docs_with_rag` to answer without leaving the conversation.
 
 ---
 
 ## ✅ Success Criteria
 
-You've successfully completed this lab when:
-- [ ] Bob listed all source files in SAMSRCn using `search_qsys`
-- [ ] Bob read and explained ART200 program logic with auto-loaded skills
-- [ ] An ERD was generated with `/erd SAMCOn` showing all tables and relationships
-- [ ] Bob retrieved IBM i documentation inline with `search_ibm_i_docs_with_rag`
-- [ ] A markdown architecture document was saved to the IFS
+- [ ] `search_qsys` listed source files in `SAMSRC`
+- [ ] `docs/ART200-documentation.md` created with program-level technical docs
+- [ ] `docs/SAMCO-ArticleManagement-functional.md` created with business-level docs
+- [ ] `docs/SAMCO-architecture.md` created with architecture overview
+- [ ] `/erd SAMCOn` generated a Mermaid diagram of all SAMCO tables and relationships
 
 ---
 
 ## Key Takeaways
 
-1. **Live IBM i Reading**: `read_member` and `search_qsys` eliminate manual file browsing
-2. **Auto-Loaded Skills**: Bob loads `rpg-primer-basics`, `dds-primer-basics`, `db2-system-catalog` automatically based on context
-3. **Instant ERDs**: `/erd` generates live schema diagrams from the QSYS2 catalog in seconds
-4. **Inline Documentation**: `search_ibm_i_docs_with_rag` answers technical questions without leaving the chat
-5. **Context Awareness**: Bob knows your library list, CCSID, and IBM i OS version — no manual setup required
+- `read_member` + `search_qsys` read live QSYS source — no copy-paste needed
+- `/erd` generates instant schema diagrams from the QSYS2 catalog
+- `Business Rules Extraction` is a powerful, optimized workflow to generate documentation
+- Documentation saved to `docs/` feeds all subsequent labs
 
 ---
 
 ## Next Steps
 
-- Proceed to [Lab 102](lab102-premium-fixed-to-free.md) to convert fixed-format RPG to free-form using the workflow
-- Ask Bob to generate a similar ERD for another library on your system
-- Use `search_qsys` with a pattern like `filePattern="ART*"` to find all article-related members
+> **From Lab 102 onwards**: source work is exclusively on the **local workspace** (Git clone). Bob reads and edits local files with `read_stream_file` / `write_stream_file`; `SAMCOn` is the build target. `SAMSRC` is never used for code modifications.
+
+Proceed to [Lab 102](lab102-premium-fixed-to-free.md) — convert fixed-format RPG to free-form.

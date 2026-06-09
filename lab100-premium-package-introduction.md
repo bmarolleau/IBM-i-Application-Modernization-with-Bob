@@ -61,8 +61,8 @@ This collaborative setup means your changes stay isolated in your branch until y
 
 Install the following extensions from the VS Code Marketplace (or via the `.vsix` files provided by your instructor):
 
-| Extension | Purpose |
-|-----------|---------|
+| Extension |  Purpose |
+|-----------|----------|
 | **IBM i Development Pack**  | Includes a set of extensions for IBM i development |
 | **Code for IBM i**  | IBM i connection, member browser, compile actions (incl. in Dev Pack) |
 | **Db2 for i**  | SQL execution and result set viewer (included in Dev Pack)|

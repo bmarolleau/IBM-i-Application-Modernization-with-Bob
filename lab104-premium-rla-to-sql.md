@@ -1,121 +1,70 @@
-# Lab 104: Convert RLA to SQL and Optimize with IBM i Database Mode
+# Lab 104: Convert RLA to SQL and Optimize
 
 ## Overview
-Use the **IBM i Database** mode to convert record-level access (RLA) operations to SQL and optimize query performance. Learn how Bob uses SQL-first skills, generates ERDs, and recommends index strategies.
+Use the **IBM i Database** mode to replace record-level access (RLA) operations with SQL and optimize query performance using Bob's SQL-first skills and index strategy guidance.
 
 **Duration**: 15 minutes  
 **Difficulty**: Intermediate  
 **Mode**: 🛢️ IBM i Database  
-**What You'll Build**: SQL queries replacing CHAIN/READ operations, optimized with indexes
+**Source**: Local workspace (`SAMCO/QRPGLESRC/`)  
+**Build target**: `SAMCOn`
+
+> **Local workspace**: Source lives in the **local Git clone** exclusively. Bob edits local files with `write_stream_file`. SQL views and indexes are created in `SAMCOn` (which contains database objects and compiled programs — no source members).
 
 ---
 
 ## Prerequisites
 - Bob IDE with **IBM Bob Premium Package for i** installed
 - **Code for IBM i** extension connected to your IBM i system
-- **Db2 for i** extension installed (for SQL execution)
-- Libraries `SAMSRCn` and `SAMCOn` configured (where `n` is your student number)
-- Library list set with both libraries
-- Completion of [Lab 101](lab101-premium-discover-samco.md) and [Lab 103](lab103-premium-dds-to-sql-workflow.md) recommended
-
-> **Premium Package feature**: The **IBM i Database** mode and its SQL-first skills are only available in **Bob Premium Package for i**.
+- **Db2 for i** extension installed
+- `SAMCOn` in your library list (`n` = your team number)
+- [Lab 101](lab101-premium-discover-samco.md) and [Lab 103](lab103-premium-dds-to-sql-workflow.md) recommended
 
 ---
 
-## Use Case: Replace Two CHAIN Operations with a Single SQL JOIN
+## Step 1: Switch to IBM i Database Mode and Generate ERD (3 minutes)
 
-The ART200 program uses two sequential operations to fetch article details:
-1. `CHAIN arid article1` — fetch article record
-2. `getArtFamDesc()` — calls another procedure to CHAIN into FAMILLY table
+In the Bob chat panel, select **🛢️ IBM i Database** mode.
 
-We'll replace this with a single SQL `SELECT … LEFT JOIN` and optimize access.
-
----
-
-## Step 1: Switch to IBM i Database Mode (1 minute)
-
-In the Bob chat panel, click the **mode dropdown** and select:
-- **🛢️ IBM i Database**
-
-**What to Look For:**
-- The mode description changes to: *"Generate, modernize, and tune SQL within Db2 for i"*
-- Auto-loaded skills now prioritize: `db2-sql-primer`, `db2-sql-optimization`, `db2-index-strategy`
-
-> **Premium vs. Core**: Bob Core has no built-in database mode. Premium Package provides a dedicated mode with 15 Db2-focused skills.
-
----
-
-## Step 2: Generate an ERD Before Writing SQL (3 minutes)
-
-**Prompt for Bob:**
+Run the `/erd` command:
 ```
 /erd SAMCOn
 ```
 
-**What to Look For:**
-- Bob queries the QSYS2 catalog to build the schema
-- A **Mermaid ERD** is generated showing:
-  - ARTICLE table with columns (ARID, ARDESIG, ARFAMCOD, ARSALEPR, ARVAT)
-  - FAMILLY table with columns (FAID, FADESIG)
-  - Foreign key: ARTICLE.ARFAMCOD → FAMILLY.FAID
-
-**Prompt for Bob:**
-```
-Based on the ERD, which tables do I need to join to get:
-- Article ID
-- Article description
-- Family description
-in a single query?
-```
-
-**Expected Answer:**
-```
-SELECT 
-  a.ARID,
-  a.ARDESIG AS article_description,
-  f.FADESIG AS family_description
-FROM SAMCOn.ARTICLE a
-LEFT JOIN SAMCOn.FAMILLY f ON a.ARFAMCOD = f.FAID
-WHERE a.ARID = ?
-```
+**What to observe:**
+- Bob queries `QSYS2.SYSTABLES`, `SYSCOLUMNS`, `SYSCST` and generates a **Mermaid ERD**
+- Shows ARTICLE → FAMILLY (via ARFAMCOD) and ARTICLE → VATDEF (via ARVAT) relationships
+- Auto-loads `db2-sql-primer`, `db2-sql-optimization`, `db2-index-strategy` skills
 
 ---
 
-## Step 3: Convert CHAIN Operations to SQL (4 minutes)
+## Step 2: Convert CHAIN Operations to a Single SQL JOIN (4 minutes)
 
-**Prompt for Bob:**
+The `ART200` program currently uses two sequential operations:
+1. `CHAIN arid article1` — fetch article record
+2. `getArtFamDesc()` — calls a procedure to CHAIN into FAMILLY
+
+**Prompt:**
 ```
-Read the ART200 program in SAMSRCn/QRPGLESRC.
+Read SAMCO/QRPGLESRC/ART200-Work_with_article.PGM.SQLRPGLE.
 
-Find the section where it does:
-1. CHAIN arid article1
-2. Calls getArtFamDesc() to fetch family description
-
-Replace these two operations with a single SQL SELECT … LEFT JOIN 
-that retrieves both article and family descriptions in one query.
-
-Show me the new SQL and the updated RPG code.
+Find where it chains into ARTICLE then calls getArtFamDesc() to get the family description. Replace these two operations with a single SQL SELECT … LEFT JOIN. Show the new EXEC SQL block.
 ```
 
-**What to Look For:**
-- Bob uses `read_member` to scan the program
-- The `rpg-embedded-sql` skill is auto-loaded to guide SQL embedding
-- Bob generates an `EXEC SQL` block:
+**What to observe:**
+- Bob reads the local workspace file and auto-loads the `rpg-embedded-sql` skill
+- Generates an `EXEC SQL` block:
 
 ```rpgle
 Exec SQL
-  SELECT 
-    ARDESIG, 
-    f.FADESIG
-  INTO 
-    :articleDesc, 
-    :familyDesc
+  SELECT ARDESC, f.FADESC
+  INTO :articleDesc, :familyDesc
   FROM ARTICLE a
   LEFT JOIN FAMILLY f ON a.ARFAMCOD = f.FAID
   WHERE a.ARID = :arid;
 
 If SQLCODE = 0;
-  // Success — both descriptions retrieved
+  // Success
 ElseIf SQLCODE = 100;
   // Not found
 Else;
@@ -123,119 +72,73 @@ Else;
 EndIf;
 ```
 
-- The `getArtFamDesc()` procedure is no longer needed
-- The `db2-sql-optimization` skill suggests using LEFT JOIN to handle missing family codes
+---
+
+## Step 3: Evaluate Index Strategy (3 minutes)
+
+**Prompt:**
+```
+For this LEFT JOIN query on ARTICLE and FAMILLY, evaluate the index strategy. Should I create a secondary index on ARTICLE(ARFAMCOD)? Use the db2-index-strategy skill.
+```
+
+**What to observe:**
+- Bob confirms ARID and FAID already exist as primary keys
+- Recommends a secondary index on `ARFAMCOD` for join performance
+- Used skill **db2-index-strategy**, skill **db2-performance-primer**
+
+**Prompt:**
+```
+Generate and validate the CREATE INDEX statement, then execute it in SAMCOn with guardrail approval.
+```
+
+**What to observe:**
+- The guardrail can block the execution — the DDL approval must be confirmed at the tool level.
+
+Bob uses `check_sql_syntax` then `execute_sql_statement` after approval:
+```sql
+CREATE INDEX SAMCOn.ARTFAM_IDX ON ARTICLE(ARFAMCOD);
+```
+> ℹ️ QSYS object names are limited to **10 characters** — use short names like `ARTFAM_IDX`.
 
 ---
 
-## Step 4: Evaluate Index Strategy (4 minutes)
+## Step 4: Create a Summary View (3 minutes)
 
-**Prompt for Bob:**
+**Prompt:**
 ```
-For the SQL query we just wrote, evaluate the index strategy.
-
-Should I create indexes on:
-1. ARTICLE(ARID)
-2. FAMILLY(FAID)
-3. ARTICLE(ARFAMCOD)
-
-Use the db2-index-strategy skill to recommend the optimal approach.
+Create a SQL view ARTSUM in SAMCOn combining ARTICLE, FAMILLY, and VATDEF with LEFT JOINs. Include: ARID, ARDESC, ARSALEPR, ARSTOCK, family description, VAT rate. Exclude soft-deleted records (ARDEL = '0'). Validate and execute.
 ```
 
-**What to Look For:**
-- Bob auto-loads the `db2-index-strategy` skill
-- Recommends:
-  1. **ARTICLE(ARID)**: Already exists as primary key — no action needed
-  2. **FAMILLY(FAID)**: Already exists as primary key — no action needed
-  3. **ARTICLE(ARFAMCOD)**: Create a secondary index for join performance
+> ℹ️ QSYS object names are limited to **10 characters** — `ARTSUM` is the correct form (not `ARTICLE_SUMMARY`).
 
-**Generated Index DDL:**
-```sql
-CREATE INDEX SAMCOn.ARTICLE_FAMCOD_IDX 
-  ON ARTICLE(ARFAMCOD);
-```
-
-**Prompt for Bob:**
-```
-Validate the CREATE INDEX statement and execute it with guardrail approval.
-```
-
-**What to Look For:**
-- Bob uses `check_sql_syntax` to validate
-- Uses `execute_sql_statement` with approval prompt
-- Confirms: **Index ARTICLE_FAMCOD_IDX created successfully**
-
----
-
-## Step 5: Create a View Combining All Tables (3 minutes)
-
-**Prompt for Bob:**
-```
-Create a SQL view called ARTICLE_SUMMARY that combines:
-- ARTICLE (ARID, ARDESIG, ARSALEPR, ARSTOCK)
-- FAMILLY (FADESIG as family_description)
-- VATDEF (VATRAT as vat_rate)
-
-Use LEFT JOINs to handle missing references.
-Validate and execute the CREATE VIEW statement.
-```
-
-**Expected DDL:**
-```sql
-CREATE OR REPLACE VIEW SAMCOn.ARTICLE_SUMMARY AS
-  SELECT 
-    a.ARID AS article_id,
-    a.ARDESIG AS article_description,
-    a.ARSALEPR AS sale_price,
-    a.ARSTOCK AS stock,
-    f.FADESIG AS family_description,
-    v.VATRAT AS vat_rate
-  FROM ARTICLE a
-  LEFT JOIN FAMILLY f ON a.ARFAMCOD = f.FAID
-  LEFT JOIN VATDEF v ON a.ARVAT = v.VATCOD
-  WHERE a.ARDEL = '0';
-```
-
-**What to Look For:**
-- Bob uses `check_sql_syntax` before execution
-- Uses `execute_sql_statement` with guardrail approval
-- Confirms: **View ARTICLE_SUMMARY created successfully**
-
-**Prompt for Bob:**
-```
-Query the ARTICLE_SUMMARY view and show me the first 5 rows.
-```
-
-**What to Look For:**
-- Bob executes `SELECT * FROM SAMCOn.ARTICLE_SUMMARY FETCH FIRST 5 ROWS ONLY`
-- Displays a formatted result set with all joined columns
+**What to observe:**
+- Bob generates the `CREATE OR REPLACE VIEW` DDL
+- Uses `check_sql_syntax` before executing
+- Executes with guardrail approval in `SAMCOn`
 
 ---
 
 ## ✅ Success Criteria
 
-You've successfully completed this lab when:
-- [ ] Switched to IBM i Database mode and noted the SQL-first skills
-- [ ] Generated an ERD with `/erd SAMCOn` showing ARTICLE → FAMILLY relationship
-- [ ] Converted CHAIN + getArtFamDesc() to a single SQL LEFT JOIN
-- [ ] Created a secondary index on ARTICLE(ARFAMCOD) with index strategy guidance
-- [ ] Created ARTICLE_SUMMARY view combining ARTICLE, FAMILLY, and VATDEF
-- [ ] Queried the view and retrieved live data
+- [ ] `/erd SAMCOn` generated a Mermaid ERD showing ARTICLE → FAMILLY relationship
+- [ ] CHAIN + `getArtFamDesc()` replaced with a single SQL LEFT JOIN
+- [ ] Secondary index `ARTFAM_IDX` created with index strategy guidance
+- [ ] `ARTSUM` view created and queryable in `SAMCOn`
 
 ---
 
 ## Key Takeaways
 
-1. **Database Mode First**: IBM i Database mode prioritizes SQL-first solutions with Db2 skills
-2. **ERD-Driven Design**: `/erd` visualizes relationships before writing queries
-3. **CHAIN → SQL**: SQL SELECT is more efficient than sequential CHAIN operations
-4. **Index Strategy**: The `db2-index-strategy` skill recommends indexes based on query patterns
-5. **Views for Reusability**: SQL views encapsulate complex joins for use across multiple programs
+- IBM i Database mode prioritizes SQL-first solutions with 15 Db2 skills
+- `/erd` visualizes relationships before writing queries — avoids join mistakes
+- A single SQL JOIN is more efficient than sequential CHAIN operations
+- `db2-index-strategy` skill recommends indexes based on actual query patterns
+- QSYS object names are limited to **10 characters** — always use short names for indexes and views
+- SQL views and indexes are created in `SAMCOn` (the database); source edits stay in the local workspace
 
 ---
 
 ## Next Steps
 
-- Proceed to [Lab 105](lab105-premium-impact-analysis.md) to analyze object dependencies
-- Convert other RLA operations in ART200 (READ, READE, SETLL) to SQL cursors
-- Ask Bob to generate an execution plan for the ARTICLE_SUMMARY view query
+- Proceed to [Lab 105](lab105-premium-impact-analysis.md) — analyze object dependencies
+- Convert other RLA operations in `ART200` (READ, READE, SETLL) to SQL cursors

@@ -237,7 +237,7 @@ Generate visual architecture diagrams in Mermaid format showing:
 6. Menu structure hierarchy
 7. Technology stack overview
 
-Create these diagrams in a separate markdown file in the temporary directory.
+Create these diagrams in a separate markdown file in the docs directory.
 ```
 
 **What to Look For:**
