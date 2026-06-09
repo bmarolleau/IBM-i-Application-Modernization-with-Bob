@@ -18,7 +18,7 @@ With Premium Package for i, source, system or application artifacts can live on 
 ![alt text](pics/image-1ppi2.png)
 
 **Key general principles with Premium Package for i (PPi)**: Source can live in the **local workspace** or in **source files in QSYS**. When using PPi, you can keep your files in QSYS if you want to, and use Bob/PPi as an assistant while your developers still use SEU/PDM. **Just because you can doesn't mean you should!**.
-We really encourage you move your source files to the IFS and git, and use QSYS when it makes sense. 
+We really encourage you to move your source files to the IFS and git, and use QSYS when it makes sense. 
 
 **Key principle in these Labs**: Source lives in the **local workspace** only. `SAMCOn` (n = team number)contains compiled programs, service programs, and database objects — no source members. `SAMSRC` contains source files of the SAMCO application. In the rest of the labs, compiled objects always target `SAMCOn`.
 
@@ -61,8 +61,8 @@ This collaborative setup means your changes stay isolated in your branch until y
 
 Install the following extensions from the VS Code Marketplace (or via the `.vsix` files provided by your instructor):
 
-| Extension | ID | Purpose |
-|-----------|----|---------|
+| Extension | Purpose |
+|-----------|---------|
 | **IBM i Development Pack**  | Includes a set of extensions for IBM i development |
 | **Code for IBM i**  | IBM i connection, member browser, compile actions (incl. in Dev Pack) |
 | **Db2 for i**  | SQL execution and result set viewer (included in Dev Pack)|
