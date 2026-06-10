@@ -212,7 +212,7 @@ Generate a comprehensive architecture overview document covering:
 3. Main business functions and workflows
 4. Technical architecture and integration points
 
-Save the documentation to a temporary directory as a markdown file.
+Save the documentation to a docs directory as a markdown file.
 ```
 
 **What to Look For:**
