@@ -1,7 +1,7 @@
 # Lab 102: Convert Fixed-Format RPG to Free
 
 ## Overview
-Use the **Fixed to Free Conversion Workflow** and the `convert_rpg_source` tool to modernize legacy RPG. The workflow converts each specification group (H, F, D, C) in order and compiles the result to `SAMCOn`.
+Use the **RPG Modernization Workflow** and the `convert_rpg_source` tool to modernize legacy RPG. The workflow converts each specification group (H, F, D, C) in order and compiles the result to `SAMCOn`.
 
 **Duration**: 20 minutes
 **Difficulty**: Intermediate
@@ -32,11 +32,10 @@ Use the **Fixed to Free Conversion Workflow** and the `convert_rpg_source` tool 
 ## Step 1: Launch the Fixed to Free Conversion Workflow (3 minutes)
 
 1. Open the **Bob Workflows** panel in Bob IDE
-2. Select **"Fixed to Free Conversion"** → **Start Workflow**
-3. Choose `Fixed to Free Format (SAMCO)`
-4. In the scope form, enter:
+2. Select **"RPG Modernization"** → **Start Workflow**
+3. In the scope form, enter:
    - **RPG Source File**: `SAMCO/QRPGLESRC/ART200-Work_with_article.PGM.SQLRPGLE`
-   - **Output File Path**: Specify the output file path
+   - **Output File Path**: Specify the output file path (10 caracters max)
    - Skip the compilation step for now. 
    - In the last plan, edit and remove the last compilation steps. We only want to convert here. You can stop the workflow when the file is written to your workspace. 
 
