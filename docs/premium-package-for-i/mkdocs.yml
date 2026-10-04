@@ -1,0 +1,13 @@
+site_name: Premium Package for i Enablement
+site_description: Explore IBM Bob and IBM i. Get started with Premium Package for i.
+repo_url: https://github.com/bmarolleau/IBM-i-Application-Modernization-with-Bob
+docs_dir: content
+site_dir: site
+theme:
+  name: material
+  language: en
+  custom_dir: overrides
+nav:
+  - Enablement: index.md
+plugins: []
+use_directory_urls: true

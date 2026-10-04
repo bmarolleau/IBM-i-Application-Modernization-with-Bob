@@ -1,0 +1,73 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap");
+
+.premium-hub {
+  --ink: #14223d;
+  --muted: #586982;
+  --blue: #1769e8;
+  --blue-dark: #104bb4;
+  --lilac: #8a6af0;
+  --sky: #eaf3ff;
+  --paper: #f8faff;
+  --line: #dce6f3;
+  color: var(--ink);
+  background: var(--paper);
+  font-family: "DM Sans", sans-serif;
+}
+
+.premium-hub *,
+.premium-hub *::before,
+.premium-hub *::after { box-sizing: border-box; }
+
+.premium-hub a { color: inherit; }
+.premium-hub button, .premium-hub a { -webkit-tap-highlight-color: transparent; }
+
+.premium-hub .hub-shell {
+  width: min(1180px, calc(100% - 56px));
+  margin-inline: auto;
+}
+
+.premium-hub .hub-display { font-family: "Space Grotesk", sans-serif; }
+
+.premium-hub .hub-reveal {
+  animation: hub-enter .65s cubic-bezier(.2,.7,.2,1) both;
+}
+.premium-hub .hub-reveal:nth-child(2) { animation-delay: .08s; }
+.premium-hub .hub-reveal:nth-child(3) { animation-delay: .16s; }
+@keyframes hub-enter {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.premium-hub .hub-link { transition: color .18s ease, background-color .18s ease, transform .18s ease, border-color .18s ease; }
+.premium-hub .hub-link:hover { transform: translateY(-2px); }
+.premium-hub .hub-link:focus-visible {
+  outline: 3px solid #9a80f4;
+  outline-offset: 4px;
+}
+
+.premium-hub .hub-grid-pattern {
+  background-image: radial-gradient(#b8c9e4 0.7px, transparent 0.7px);
+  background-size: 17px 17px;
+}
+
+@media (max-width: 700px) {
+  .premium-hub .hub-shell { width: min(100% - 36px, 560px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .premium-hub *, .premium-hub *::before, .premium-hub *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+html { scroll-behavior: smooth; }
+body { margin: 0; }
+.premium-hub a.text-white { color: #fff; }
+.skip-link {
+  position: absolute; left: 12px; top: 12px; z-index: 100;
+  padding: 12px 16px; background: #fff; color: #14223d;
+  border: 2px solid #1769e8; border-radius: 8px;
+  transform: translateY(-160%);
+}
+.skip-link:focus { transform: translateY(0); }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }

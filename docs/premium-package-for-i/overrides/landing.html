@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="{{ config.site_description | e }}">
+    <meta property="og:title" content="{{ config.site_name | e }}">
+    <meta property="og:description" content="{{ config.site_description | e }}">
+    <meta property="og:type" content="website">
+    <meta name="theme-color" content="#1769e8">
+    <title>{{ config.site_name | e }}</title>
+    <link rel="icon" type="image/png" href="{{ 'assets/images/bob-premium.png' | url }}">
+    <link rel="stylesheet" href="{{ 'assets/stylesheets/utilities.css' | url }}">
+    <link rel="stylesheet" href="{{ 'assets/stylesheets/landing.css' | url }}">
+  </head>
+  <body>
+    <a class="skip-link" href="#learning-path">Skip to learning resources</a>
+    {% include "landing-content.html" %}
+  </body>
+</html>
