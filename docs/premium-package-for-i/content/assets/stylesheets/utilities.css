@@ -187,14 +187,14 @@
   .-top-2 {
     top: calc(var(--spacing) * -2);
   }
+  .top-0 {
+    top: 0px;
+  }
   .top-8 {
     top: calc(var(--spacing) * 8);
   }
   .top-\[17\%\] {
     top: 17%;
-  }
-  .top-\[20\%\] {
-    top: 20%;
   }
   .-right-2 {
     right: calc(var(--spacing) * -2);
@@ -202,17 +202,17 @@
   .right-\[9\%\] {
     right: 9%;
   }
-  .-bottom-2 {
-    bottom: calc(var(--spacing) * -2);
-  }
   .bottom-20 {
     bottom: calc(var(--spacing) * 20);
+  }
+  .bottom-\[-2\.75rem\] {
+    bottom: -2.75rem;
   }
   .bottom-\[12\%\] {
     bottom: 12%;
   }
-  .left-\[8\%\] {
-    left: 8%;
+  .left-1\/2 {
+    left: calc(1 / 2 * 100%);
   }
   .left-\[11\%\] {
     left: 11%;
@@ -304,8 +304,8 @@
   .min-h-\[100dvh\] {
     min-height: 100dvh;
   }
-  .min-h-\[320px\] {
-    min-height: 320px;
+  .min-h-\[420px\] {
+    min-height: 420px;
   }
   .min-h-\[520px\] {
     min-height: 520px;
@@ -375,6 +375,10 @@
   }
   .shrink-0 {
     flex-shrink: 0;
+  }
+  .-translate-x-1\/2 {
+    --tw-translate-x: calc(calc(1 / 2 * 100%) * -1);
+    translate: var(--tw-translate-x) var(--tw-translate-y);
   }
   .scroll-mt-8 {
     scroll-margin-top: calc(var(--spacing) * 8);
@@ -958,17 +962,27 @@
     }
   }
   @media (width >= 48rem) {
+    .md\:bottom-3 {
+      bottom: calc(var(--spacing) * 3);
+    }
+    .md\:left-\[-36\%\] {
+      left: -36%;
+    }
     .md\:mb-12 {
       margin-bottom: calc(var(--spacing) * 12);
     }
     .md\:block {
       display: block;
     }
-    .md\:min-h-\[390px\] {
-      min-height: 390px;
+    .md\:min-h-\[440px\] {
+      min-height: 440px;
     }
     .md\:min-h-\[560px\] {
       min-height: 560px;
+    }
+    .md\:translate-x-0 {
+      --tw-translate-x: 0px;
+      translate: var(--tw-translate-x) var(--tw-translate-y);
     }
     .md\:grid-cols-3 {
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1026,6 +1040,21 @@
       padding-bottom: calc(var(--spacing) * 28);
     }
   }
+}
+@property --tw-translate-x {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0;
+}
+@property --tw-translate-y {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0;
+}
+@property --tw-translate-z {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0;
 }
 @property --tw-space-y-reverse {
   syntax: "*";
@@ -1170,6 +1199,9 @@
 @layer properties {
   @supports ((-webkit-hyphens: none) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color:rgb(from red r g b)))) {
     *, ::before, ::after, ::backdrop {
+      --tw-translate-x: 0;
+      --tw-translate-y: 0;
+      --tw-translate-z: 0;
       --tw-space-y-reverse: 0;
       --tw-border-style: solid;
       --tw-leading: initial;
