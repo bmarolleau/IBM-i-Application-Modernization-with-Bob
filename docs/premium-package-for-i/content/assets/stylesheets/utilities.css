@@ -13,7 +13,6 @@
     --font-weight-semibold: 600;
     --font-weight-bold: 700;
     --leading-tight: 1.25;
-    --radius-xl: 0.75rem;
     --radius-2xl: 1rem;
     --blur-3xl: 64px;
     --default-font-family: var(--font-sans);
@@ -283,9 +282,6 @@
   .h-5 {
     height: calc(var(--spacing) * 5);
   }
-  .h-8 {
-    height: calc(var(--spacing) * 8);
-  }
   .h-9 {
     height: calc(var(--spacing) * 9);
   }
@@ -307,6 +303,9 @@
   .h-\[315px\] {
     height: 315px;
   }
+  .min-h-\[88px\] {
+    min-height: 88px;
+  }
   .min-h-\[100dvh\] {
     min-height: 100dvh;
   }
@@ -324,9 +323,6 @@
   }
   .w-5 {
     width: calc(var(--spacing) * 5);
-  }
-  .w-8 {
-    width: calc(var(--spacing) * 8);
   }
   .w-9 {
     width: calc(var(--spacing) * 9);
@@ -416,9 +412,6 @@
   .justify-center {
     justify-content: center;
   }
-  .gap-1 {
-    gap: var(--spacing);
-  }
   .gap-1\.5 {
     gap: calc(var(--spacing) * 1.5);
   }
@@ -484,9 +477,6 @@
   }
   .rounded-full {
     border-radius: calc(infinity * 1px);
-  }
-  .rounded-xl {
-    border-radius: var(--radius-xl);
   }
   .border {
     border-style: var(--tw-border-style);
@@ -664,11 +654,11 @@
   .py-5 {
     padding-block: calc(var(--spacing) * 5);
   }
+  .py-6 {
+    padding-block: calc(var(--spacing) * 6);
+  }
   .py-7 {
     padding-block: calc(var(--spacing) * 7);
-  }
-  .py-8 {
-    padding-block: calc(var(--spacing) * 8);
   }
   .py-14 {
     padding-block: calc(var(--spacing) * 14);
@@ -919,6 +909,9 @@
     }
     .hover\:text-\[\#104bb4\]:hover {
       color: #104bb4;
+    }
+    .hover\:text-\[\#1769e8\]:hover {
+      color: #1769e8;
     }
   }
   @media (width >= 40rem) {
