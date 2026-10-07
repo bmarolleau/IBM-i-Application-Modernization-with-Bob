@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <rect width="64" height="64" rx="12" fill="#000000"/>
+  <!-- Tap/touch gesture icon — circular signal rings + hand pointer -->
+  <!-- Signal rings -->
+  <circle cx="32" cy="22" r="4" fill="none" stroke="white" stroke-width="2.2" opacity="0.9"/>
+  <circle cx="32" cy="22" r="9" fill="none" stroke="white" stroke-width="1.8" opacity="0.6"/>
+  <!-- Dot at top left (orbital) -->
+  <circle cx="18" cy="14" r="2.5" fill="none" stroke="white" stroke-width="1.8"/>
+  <!-- Dot at top right (orbital) -->
+  <circle cx="46" cy="10" r="2" fill="none" stroke="white" stroke-width="1.8"/>
+  <!-- Connecting arc lines -->
+  <path d="M20.5 14.5 Q24 18 27.5 20" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M44 12 Q41 15 37 19" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+  <!-- Hand/finger pointing up -->
+  <rect x="30" y="26" width="4" height="14" rx="2" fill="white"/>
+  <!-- Fingers -->
+  <rect x="30" y="36" width="3" height="10" rx="1.5" fill="white"/>
+  <rect x="34" y="38" width="3" height="9" rx="1.5" fill="white"/>
+  <rect x="38" y="39" width="3" height="8" rx="1.5" fill="white"/>
+  <rect x="26" y="39" width="3" height="8" rx="1.5" fill="white"/>
+  <!-- Palm base -->
+  <rect x="26" y="46" width="15" height="4" rx="2" fill="white"/>
+</svg>
