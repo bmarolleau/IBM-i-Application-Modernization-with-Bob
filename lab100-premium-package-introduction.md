@@ -42,7 +42,7 @@ This collaborative setup means your changes stay isolated in your branch (and li
 
 | Lab | Title | Mode | Main Topic | Duration |
 |-----|-------|------|------------|----------|
-| [Lab 101](lab101-premium-discover-samco.md) | Document SAMCO with Bob | 💬 Ask | `read_member`, `search_qsys`, `/erd`, docs in `docs/` | 20 min |
+| [Lab 101](lab101-premium-discover-samco.md) | Document SAMCO with Bob | ℹ️ IBM i Developer | `read_member`, `search_qsys`, `/erd`, docs in `docs/` | 20 min |
 | [Lab 102](lab102-premium-fixed-to-free.md) | Convert Fixed-Format RPG to Free | ℹ️ IBM i Developer | `convert_rpg_source`, **Fixed to Free Workflow**, RPG skills | 20 min |
 | [Lab 103](lab103-premium-dds-to-sql-workflow.md) | Convert DDS to SQL | ℹ️ IBM i Developer | **DDS to SQL Skills**, `db2-dds-to-ddl`, `check_sql_syntax` | 20 min |
 | [Lab 104](lab104-premium-rla-to-sql.md) | Convert RLA to SQL and Optimize | 🛢️ IBM i Database | `/erd`, `db2-sql-primer`, `db2-index-strategy` | 20 min |
